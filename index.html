@@ -4,86 +4,127 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hoja de ensaye · Riesgo cuantitativo de commodities</title>
+<script>
+// Se fija el tema ANTES de pintar (evita parpadeo claro/oscuro al cargar).
+(function(){try{
+  var t=localStorage.getItem("lab-theme");
+  document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");
+}catch(e){document.documentElement.setAttribute("data-theme","dark");}
+})();
+</script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 :root{
-  --paper:#E7EAE4; --paper-2:#F2F4EF; --ink:#14202B; --slate:#55636B; --rule:#C3CABF;
+  --paper:#0A0B0E; --paper-2:#14171E; --paper-3:#1C202A; --ink:#F4F6F8; --slate:#8E9BB0; --rule:#2A3140;
+  --au:#E5FE00; --ag:#C9D3DC; --pt:#7FA8C9; --cu:#E2793F; --spx:#8B7FE8; --usd:#34C9A3;
+  --oil:#C97A3D; --gas:#4FA3E3; --trigo:#D9B44A; --maiz:#E8A23C;
+  --loss:#FF2A5F; --gain:#00F5A0;
+  --glow:rgba(229,254,0,.25);
+  --code-bg:#0B0C10; --head-bg:#0D0F14; --rail-bg:#0F1117;
+  --masthead-bg:linear-gradient(180deg,rgba(20,23,30,.95) 0%,rgba(10,11,14,.9) 100%);
+  --masthead-shadow:0 4px 30px var(--glow); --masthead-blur:blur(12px); --masthead-border:1px solid var(--rule);
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+  --sans:"Plus Jakarta Sans",ui-sans-serif,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --hud:"Chakra Petch",var(--mono);
+}
+html[data-theme="light"]{
+  --paper:#E7EAE4; --paper-2:#F2F4EF; --paper-3:#FFFFFF; --ink:#14202B; --slate:#55636B; --rule:#C3CABF;
   --au:#A9812B; --ag:#8C99A3; --pt:#6E7F8D; --cu:#B5623C; --spx:#3D4F5C; --usd:#2F6B5E;
   --oil:#824B18; --gas:#2E7FB8; --trigo:#BFA030; --maiz:#CC7A1F;
   --loss:#7A2E3B; --gain:#2F6B5E;
-  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
-  --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --glow:transparent;
+  --code-bg:#FFFFFF; --head-bg:transparent; --rail-bg:var(--paper);
+  --masthead-bg:var(--paper-2); --masthead-shadow:none; --masthead-blur:none; --masthead-border:1.5px solid var(--ink);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+body{background-color:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 50% 0%,rgba(229,254,0,.06) 0%,transparent 60%),
+    linear-gradient(135deg,#111318 25%,transparent 25%) -20px 0,
+    linear-gradient(225deg,#111318 25%,transparent 25%) -20px 0,
+    linear-gradient(315deg,#111318 25%,transparent 25%),
+    linear-gradient(45deg,#111318 25%,transparent 25%);
+  background-size:100% 100%,40px 40px,40px 40px,40px 40px,40px 40px}
+html[data-theme="light"] body{
   background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
   background-size:64px 64px;background-position:-1px -1px}
 .sheet{max-width:1180px;margin:0 auto;padding:0 16px 64px}
-.masthead{border:1.5px solid var(--ink);background:var(--paper-2);margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) auto}
+.masthead{border:var(--masthead-border);border-bottom:2px solid var(--au);background:var(--masthead-bg);box-shadow:var(--masthead-shadow);backdrop-filter:var(--masthead-blur);margin-top:24px;display:grid;grid-template-columns:minmax(0,1fr) auto}
+html[data-theme="light"] .masthead{border-bottom:var(--masthead-border)}
 .masthead .left{padding:20px 22px 18px}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin:0 0 10px}
-h1{font-family:var(--mono);font-weight:600;font-size:clamp(21px,3.4vw,31px);letter-spacing:-.01em;line-height:1.15;margin:0 0 8px;text-transform:uppercase}
-h1 em{font-style:normal;color:var(--au)}
+.eyebrow{font-family:var(--hud);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin:0 0 10px}
+h1{font-family:var(--hud);font-weight:700;font-size:clamp(21px,3.4vw,31px);letter-spacing:.02em;line-height:1.15;margin:0 0 8px;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--au);text-shadow:0 0 12px var(--glow)}
 .lede{margin:0;max-width:62ch;color:var(--slate);font-size:14.5px}
-.punch{border-left:1.5px solid var(--ink);padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:190px}
-.stamp{border:1.5px solid var(--ink);border-radius:26px;padding:8px 14px;text-align:center;background:var(--paper)}
-.stamp .sym{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:.04em;line-height:1}
+.punch{border-left:1px solid var(--rule);padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:190px}
+.stamp{border:1px solid var(--rule);border-left:3px solid var(--au);border-radius:6px;padding:8px 14px;text-align:center;background:var(--paper-2);transition:box-shadow .25s ease,border-color .25s ease}
+.stamp:hover{border-color:var(--au);box-shadow:0 0 15px var(--glow)}
+.stamp .sym{font-family:var(--hud);font-size:26px;font-weight:700;letter-spacing:.04em;line-height:1;color:var(--ink)}
 .stamp .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--slate);margin-top:3px}
-.punch .grade{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--slate);text-align:center}
-.punch .grade b{display:block;font-size:17px;color:var(--ink);letter-spacing:0}
-.controls{border:1.5px solid var(--ink);border-top:none;background:var(--paper-2);padding:14px 16px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.punch .grade{font-family:var(--hud);font-size:11px;letter-spacing:.1em;color:var(--slate);text-align:center}
+.punch .grade b{display:block;font-size:17px;color:var(--au);letter-spacing:0;font-family:var(--mono)}
+.controls{border:1px solid var(--rule);border-top:none;background:var(--paper-2);padding:14px 16px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
 .ctl{display:flex;flex-direction:column;gap:5px}
-.ctl label,.ctl .lab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
-select,input[type=number],textarea{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:5px 7px}
+.ctl label,.ctl .lab{font-family:var(--hud);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+select,input[type=number],textarea{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:6px 8px;transition:border-color .2s,box-shadow .2s}
 select:focus-visible,input:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--au);outline-offset:2px}
+select:hover,input:hover{border-color:var(--au)}
 input[type=range]{accent-color:var(--au);width:150px}
 .metalpick{display:flex;flex-wrap:wrap;gap:6px}
-.mchip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);border-radius:2px;padding:5px 9px;background:var(--paper);cursor:pointer;color:var(--slate)}
-.mchip[aria-pressed=true]{border-color:var(--ink);color:var(--ink);background:#fff;box-shadow:inset 0 -3px 0 var(--acc,var(--au))}
-button.act{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper-2);padding:7px 13px;border-radius:2px;cursor:pointer}
-button.ghost{background:transparent;color:var(--ink)}
-.rail{display:flex;overflow-x:auto;border:1.5px solid var(--ink);border-top:none;background:var(--paper);scrollbar-width:thin}
-.chip{flex:0 0 auto;border:none;border-right:1px solid var(--rule);background:transparent;cursor:pointer;padding:9px 14px;text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--slate);white-space:nowrap}
-.chip b{display:block;font-size:12.5px;color:var(--ink);font-weight:600;letter-spacing:.02em}
-.chip[aria-selected=true]{background:var(--ink);color:#B9C2C8}
-.chip[aria-selected=true] b{color:#fff}
+.mchip{font-family:var(--hud);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);border-radius:4px;padding:5px 9px;background:var(--paper);cursor:pointer;color:var(--slate);transition:all .2s ease}
+.mchip:hover{border-color:var(--au);color:var(--ink)}
+.mchip[aria-pressed=true]{border-color:var(--au);color:var(--au);background:var(--paper-3);box-shadow:0 0 8px var(--glow)}
+button.act{font-family:var(--hud);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--au);background:var(--au);color:#0A0B0E;padding:7px 13px;border-radius:4px;cursor:pointer;font-weight:700;transition:box-shadow .2s ease}
+button.act:hover{box-shadow:0 0 15px var(--glow)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+button.ghost:hover{border-color:var(--au);color:var(--au)}
+.rail{display:flex;overflow-x:auto;border:1px solid var(--rule);border-top:none;background:var(--rail-bg);scrollbar-width:thin}
+.chip{flex:0 0 auto;border:none;border-right:1px solid var(--rule);border-bottom:2px solid transparent;background:transparent;cursor:pointer;padding:9px 14px;text-align:left;font-family:var(--hud);font-size:11px;letter-spacing:.05em;color:var(--slate);white-space:nowrap;text-transform:uppercase;transition:all .2s ease}
+.chip:hover{color:var(--au)}
+.chip b{display:block;font-size:12.5px;color:var(--ink);font-weight:600;letter-spacing:.02em;font-family:var(--sans);text-transform:none}
+.chip[aria-selected=true]{background:var(--paper-2);border-bottom-color:var(--au);color:var(--au);text-shadow:0 0 8px var(--glow)}
+.chip[aria-selected=true] b{color:var(--au)}
 section{display:none;padding-top:30px}
 section.on{display:block}
-h2{font-family:var(--mono);font-size:19px;text-transform:uppercase;letter-spacing:.02em;margin:0 0 4px}
-h3{font-family:var(--mono);font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--slate);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:5px}
-p{margin:0 0 12px;max-width:78ch}
+section.on{border:1px solid var(--rule);background:var(--paper-2);border-radius:8px;padding:2rem;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+h2{font-family:var(--hud);font-size:19px;text-transform:uppercase;letter-spacing:.05em;margin:0 0 4px;color:var(--au);text-shadow:0 0 8px var(--glow)}
+h3{font-family:var(--hud);font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:5px}
+p{margin:0 0 12px;max-width:78ch;color:var(--ink)}
 .grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.card{border:1px solid var(--rule);background:var(--paper-2);padding:14px 16px}
-.kpi .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
-.kpi .v{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.01em;margin-top:2px}
+.card{border:1px solid var(--rule);border-left:3px solid var(--au);background:var(--paper-3);padding:14px 16px;border-radius:4px;transition:box-shadow .25s ease,transform .25s ease}
+.card:hover{box-shadow:0 0 15px var(--glow);transform:translateY(-2px)}
+.kpi .k{font-family:var(--hud);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+.kpi .v{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.01em;margin-top:2px;color:var(--ink)}
 .kpi .n{font-size:12px;color:var(--slate);margin-top:3px;line-height:1.4}
-.fx{font-family:var(--mono);font-size:13.5px;background:#fff;border-left:3px solid var(--au);padding:9px 12px;margin:10px 0;display:block;overflow-x:auto}
+.fx{font-family:var(--mono);font-size:13.5px;background:var(--code-bg);color:var(--au);border:1px solid var(--rule);border-left:3px solid var(--au);border-radius:4px;padding:9px 12px;margin:10px 0;display:block;overflow-x:auto}
 .fx small{color:var(--slate)}
-.note{border-left:3px solid var(--slate);padding:8px 12px;background:var(--paper-2);font-size:13.5px;color:var(--slate);margin:12px 0}
+.note{border-left:3px solid var(--slate);border-radius:4px;padding:8px 12px;background:var(--paper-3);font-size:13.5px;color:var(--slate);margin:12px 0}
 .note b{color:var(--ink)}
-.warn{border-left-color:var(--loss);border-left-width:4px;background:#F5E9EA;color:var(--ink)}
+.warn{border-left-color:var(--loss);border-left-width:4px;background:rgba(255,42,95,.08);color:var(--ink)}
 .warn b{color:var(--loss)}
 table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;margin:8px 0 4px}
-th,td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:right;white-space:nowrap}
+th,td{border-bottom:1px solid var(--rule);padding:8px 10px;text-align:right;white-space:nowrap;color:var(--ink)}
 th:first-child,td:first-child{text-align:left}
-thead th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);border-bottom:1.5px solid var(--ink)}
-tbody tr:hover{background:#fff}
+thead th{font-family:var(--hud);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--au);background:var(--head-bg);border-bottom:2px solid var(--rule)}
+tbody tr:hover td{background:var(--paper-3);color:var(--ink)}
 .wrapT{overflow-x:auto}
 .neg{color:var(--loss)}.pos{color:var(--gain)}
-svg{display:block;width:100%;height:auto;background:var(--paper-2);border:1px solid var(--rule)}
+svg{display:block;width:100%;height:auto;background:var(--paper-3);border:1px solid var(--rule);border-radius:4px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:11px;color:var(--slate);margin:8px 0 0}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px}
-.q{border:1px solid var(--rule);background:var(--paper-2);padding:12px 14px;margin-bottom:10px}
-.q p{font-weight:600;margin-bottom:8px}
-.q button{display:block;width:100%;text-align:left;font-family:var(--sans);font-size:13.5px;background:var(--paper);border:1px solid var(--rule);padding:7px 10px;margin-bottom:5px;cursor:pointer;border-radius:2px}
-.q button.ok{border-color:var(--gain);background:#E4EFEA}
-.q button.no{border-color:var(--loss);background:#F2E4E7}
+.q{border:1px solid var(--rule);background:var(--paper-3);padding:12px 14px;margin-bottom:10px;border-radius:4px}
+.q p{font-weight:600;margin-bottom:8px;color:var(--ink)}
+.q button{display:block;width:100%;text-align:left;font-family:var(--sans);font-size:13.5px;color:var(--ink);background:var(--paper);border:1px solid var(--rule);padding:7px 10px;margin-bottom:5px;cursor:pointer;border-radius:4px}
+.q button:hover{border-color:var(--au)}
+.q button.ok{border-color:var(--gain);background:rgba(0,245,160,.1);color:var(--ink)}
+.q button.no{border-color:var(--loss);background:rgba(255,42,95,.1);color:var(--ink)}
 .fb{font-size:13px;color:var(--slate);margin-top:6px;min-height:1px}
-pre.ficha{font-family:var(--mono);font-size:12px;white-space:pre-wrap;background:#fff;border:1px solid var(--rule);padding:14px;line-height:1.6}
-footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-family:var(--mono);font-size:11px;color:var(--slate);letter-spacing:.04em}
-@media (max-width:640px){.masthead{grid-template-columns:1fr}.punch{border-left:none;border-top:1.5px solid var(--ink);flex-direction:row;justify-content:space-between}}
+pre.ficha{font-family:var(--mono);font-size:12px;white-space:pre-wrap;background:var(--code-bg);color:var(--ink);border:1px solid var(--rule);padding:14px;line-height:1.6;border-radius:4px}
+footer{margin-top:34px;border-top:1px solid var(--rule);padding-top:12px;font-family:var(--hud);font-size:11px;color:var(--slate);letter-spacing:.08em;text-align:center}
+@media (max-width:640px){.masthead{grid-template-columns:1fr}.punch{border-left:none;border-top:1px solid var(--rule);flex-direction:row;justify-content:space-between}}
 @media (prefers-reduced-motion:no-preference){.draw{stroke-dasharray:2600;stroke-dashoffset:2600;animation:d 1.1s ease-out forwards}@keyframes d{to{stroke-dashoffset:0}}}
 </style>
 </head>
@@ -103,7 +144,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
 </header>
 <div class="controls">
   <div class="ctl"><span class="lab">Activos en el estudio</span><div class="metalpick" id="pick"></div></div>
-  <div class="ctl"><label for="main">Activo principal</label><select id="main"></select></div>
+  <div class="ctl"><label for="main">Activo principal <span style="text-transform:none;letter-spacing:0;font-weight:400">· secciones 1-8 y 10</span></label><select id="main"></select></div>
   <div class="ctl"><label for="bench">Benchmark (beta)</label><select id="bench"></select></div>
   <div class="ctl"><label for="freq">Frecuencia</label><select id="freq"><option value="d">Diaria (252)</option><option value="m">Mensual (12)</option></select></div>
   <div class="ctl"><label for="rtype">Rendimiento</label><select id="rtype"><option value="log">Logarítmico</option><option value="simple">Aritmético</option></select></div>
@@ -111,6 +152,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="ctl"><label for="hor">Horizonte (periodos)</label><input type="number" id="hor" min="1" max="60" value="1" style="width:78px"></div>
   <div class="ctl"><label for="rf">Tasa libre riesgo anual %</label><input type="number" id="rf" min="0" max="20" step="0.25" value="4.25" style="width:88px"></div>
   <div class="ctl"><span class="lab">Datos</span><div style="display:flex;gap:6px"><button class="act ghost" id="btnCsv">Cargar mi CSV</button><button class="act ghost" id="btnLive">Datos en vivo</button><button class="act ghost" id="btnDemo">Volver a demo</button></div></div>
+  <div class="ctl"><span class="lab">Tema</span><button class="act ghost" id="btnTheme">Modo claro</button></div>
 </div>
 <nav class="rail" id="rail" role="tablist"></nav>
 
@@ -233,7 +275,10 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
 
 <section id="s9">
   <h2>9 · Simulación Montecarlo</h2>
-  <p>Las secciones anteriores describen lo que ya pasó. Esta proyecta hacia adelante: miles de trayectorias posibles del precio, construidas con las mismas propiedades estadísticas que se midieron en los pasos 2 a 6, para ver un rango de dónde podría moverse el activo.</p>
+  <p>Las secciones anteriores describen lo que ya pasó. Esta proyecta hacia adelante: miles de trayectorias posibles del precio, construidas con las mismas propiedades estadísticas que se midieron en los pasos 2 a 6, para ver un rango de dónde podría moverse el activo — o la cartera, si eligen más de uno.</p>
+  <h3>Composición de la cartera a simular</h3>
+  <p>Se usan los activos marcados arriba en <b>“Activos en el estudio”</b>. Con uno solo, la simulación es sobre ese activo (igual que antes). Con dos o más, cada uno pesa lo que indiquen aquí — deben sumar 100% — y Montecarlo proyecta la cesta combinada, no cada activo por separado.</p>
+  <div id="cartWrap"></div>
   <div class="controls" style="border:1px solid var(--rule);margin:0 0 16px">
     <div class="ctl"><label for="mcMetodo">Método de remuestreo</label>
       <select id="mcMetodo">
@@ -369,7 +414,7 @@ async function cargarVivo(){
   }catch(e){return null;}
 }
 let DATA=cargarDemo();
-const S={sel:["Oro","Plata","Platino","Cobre"],main:"Oro",bench:"SP500",freq:"d",rtype:"log",conf:0.99,hor:1,rf:0.0425,tab:"s1",mcMetodo:"boot",mcHor:60,mcSims:1500};
+const S={sel:["Oro","Plata","Platino","Cobre"],main:"Oro",bench:"SP500",freq:"d",rtype:"log",conf:0.99,hor:1,rf:0.0425,tab:"s1",mcMetodo:"boot",mcHor:60,mcSims:1500,pesos:{}};
 
 function view(){
   let dates=DATA.dates, series=DATA.series.map(s=>Object.assign({},s));
@@ -379,13 +424,95 @@ function view(){
     dates=idx.map(i=>DATA.dates[i]);
     series=series.map(s=>Object.assign({},s,{px:idx.map(i=>s.px[i])}));
   }
-  series.forEach(s=>{const r=[];
-    for(let i=1;i<s.px.length;i++) r.push(S.rtype==="log"?Math.log(s.px[i]/s.px[i-1]):s.px[i]/s.px[i-1]-1);
+  series.forEach(s=>{const r=[];let base=s.px[0];
+    // Guardia contra precios no positivos (p.ej. WTI, que cotizo en negativo el 20-abr-2020):
+    // un solo dato <=0 vuelve NaN el log-rendimiento y con eso toda la serie (media, sd, VaR...).
+    // Se conserva el precio real en px (para el grafico) pero ese periodo cuenta como
+    // "sin rendimiento valido" (0) y la cadena se retoma en el siguiente precio positivo,
+    // sin desalinear la serie de rendimientos respecto a las fechas.
+    for(let i=1;i<s.px.length;i++){
+      const cur=s.px[i];
+      if(cur>0&&base>0){r.push(S.rtype==="log"?Math.log(cur/base):cur/base-1);base=cur;}
+      else{r.push(0);if(cur>0)base=cur;}
+    }
     s.r=r;});
   return {dates,series,rdates:dates.slice(1),f:S.freq==="d"?252:12};
 }
 const get=(V,k)=>V.series.find(s=>s.key===k);
 const selSeries=V=>S.sel.map(k=>get(V,k)).filter(Boolean);
+function pesosNormalizados(sel,pesos){
+  const w={};let tot=0;
+  sel.forEach(function(k){const v=Math.max(0,(pesos&&pesos[k])||0);w[k]=v;tot+=v;});
+  if(tot<=0)sel.forEach(k=>w[k]=1/sel.length);else sel.forEach(k=>w[k]=w[k]/tot);
+  return w;
+}
+// Construye una serie sintetica (indice base 100) para la cesta ponderada de "sel".
+// Con un solo activo, la cesta ES ese activo (mismo comportamiento que antes de este cambio).
+// Con 2+ activos, cada periodo se combina como suma ponderada de rendimientos SIMPLES
+// (asi es como se combina el rendimiento de una cartera real, nunca con log-rendimientos),
+// y sobre ese indice sintetico se recalculan log/simple rendimientos igual que para cualquier activo,
+// para poder reutilizar sin cambios el resto de la maquinaria (VaR, Montecarlo, graficos...).
+function construirCartera(V,sel,pesos){
+  const series=sel.map(k=>get(V,k)).filter(Boolean);
+  const w=pesosNormalizados(sel,pesos);
+  if(series.length<=1){
+    const s=series[0]||V.series[0];
+    return Object.assign({},s,{_cartera:false,_pesos:{[s.key]:1},_etiqueta:s.name});
+  }
+  const n=Math.min.apply(null,series.map(s=>s.r.length));
+  const px=[100];
+  for(let i=0;i<n;i++){
+    let simpleAcc=0;
+    series.forEach(function(s){
+      const ri=s.r[s.r.length-n+i];
+      const simple=S.rtype==="log"?Math.expm1(ri):ri;
+      simpleAcc+=w[s.key]*simple;
+    });
+    px.push(px[px.length-1]*(1+simpleAcc));
+  }
+  const r=[];
+  for(let i=1;i<px.length;i++) r.push(S.rtype==="log"?Math.log(px[i]/px[i-1]):px[i]/px[i-1]-1);
+  const etiqueta=sel.map(function(k){const s=get(V,k);return (s?s.sym:k)+" "+Math.round(w[k]*100)+"%";}).join(" + ");
+  return {key:"__cartera__",name:"Cartera ("+etiqueta+")",sym:"CART",tick:series.length+" activos",col:"var(--au)",
+    px,r,_cartera:true,_pesos:w,_etiqueta:etiqueta};
+}
+// Dibuja los campos de peso (%) por activo seleccionado, solo cuando hay 2+ (con 1 no aplica).
+function renderCartWrap(V,cartera){
+  const w=cartera._pesos||{};
+  if(S.sel.length<=1){
+    const s=get(V,S.sel[0]);
+    $("cartWrap").innerHTML='<div class="note">Un solo activo seleccionado (<b>'+esc(s?s.name:S.sel[0])+'</b>): la simulación es sobre ese activo, sin ponderaciones. Marquen más activos arriba en “Activos en el estudio” para simular una cartera combinada.</div>';
+    return;
+  }
+  const filas=S.sel.map(function(k){
+    const s=get(V,k);
+    // La caja muestra lo que el usuario escribio (si escribio algo); si no, el reparto igual vigente.
+    // La formula/KPIs de abajo siempre muestran el peso ya normalizado a 100%.
+    const val=S.pesos[k]!=null?S.pesos[k]:Math.round((w[k]||0)*1000)/10;
+    return '<div class="ctl"><span class="lab">'+esc(s?s.sym+" · "+s.name:k)+'</span>'+
+      '<input type="number" class="pesoIn" data-k="'+k+'" min="0" max="100" step="1" value="'+val+'" style="width:74px"></div>';
+  }).join("");
+  const tieneCustom=S.sel.some(k=>S.pesos[k]!=null);
+  const sumaEditada=Math.round(S.sel.reduce((a,k)=>a+Math.max(0,+S.pesos[k]||0),0)*10)/10;
+  $("cartWrap").innerHTML='<div class="controls" style="border:1px solid var(--rule);margin:0 0 10px">'+filas+
+    '<div class="ctl"><span class="lab">&nbsp;</span><button class="act ghost" id="btnPesosIguales">Igualar pesos</button></div></div>'+
+    '<div class="note" style="margin:0 0 16px">'+
+    (tieneCustom
+      ?('Suma de los campos: <b>'+fmtN(sumaEditada,1)+'%</b>. Se normalizan automáticamente a 100% al simular (no hace falta que sumen exacto).')
+      :('Pesos iguales entre los '+S.sel.length+' activos seleccionados. Cambien cualquier campo para personalizarlos.'))+'</div>';
+  Array.prototype.forEach.call($("cartWrap").querySelectorAll(".pesoIn"),function(inp){
+    inp.onchange=function(){
+      // al editar un campo, se fijan los valores VISIBLES de todos (si no, los que no se tocan
+      // quedarian en 0 en la normalizacion en vez de conservar su reparto vigente)
+      Array.prototype.forEach.call($("cartWrap").querySelectorAll(".pesoIn"),function(x){
+        S.pesos[x.dataset.k]=Math.max(0,+x.value||0);
+      });
+      render();
+    };
+  });
+  const btnIg=$("btnPesosIguales");
+  if(btnIg)btnIg.onclick=function(){S.pesos={};render();};
+}
 function stats(s,f,rf){
   const r=s.r,n=r.length,m=mean(r),sd=sdev(r);
   const volA=sd*Math.sqrt(f);
@@ -444,10 +571,10 @@ function axes(xd,yd,fmtY,nY,xlabels){
   nY=nY||4;xlabels=xlabels||[];let g="";
   for(let i=0;i<=nY;i++){
     const v=yd[0]+(yd[1]-yd[0])*i/nY,y=px_(v,yd,H-M.b,M.t);
-    g+='<line x1="'+M.l+'" y1="'+y.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y.toFixed(1)+'" stroke="#C3CABF" stroke-width="1" '+(i===0?'':'stroke-dasharray="2 3"')+'/>';
-    g+='<text x="'+(M.l-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-family="monospace" font-size="10" fill="#55636B">'+fmtY(v)+'</text>';}
+    g+='<line x1="'+M.l+'" y1="'+y.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y.toFixed(1)+'" stroke="#333B4D" stroke-width="1" '+(i===0?'':'stroke-dasharray="2 3"')+'/>';
+    g+='<text x="'+(M.l-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-family="monospace" font-size="10" fill="#8E9BB0">'+fmtY(v)+'</text>';}
   xlabels.forEach(function(l){const x=px_(l.i,xd,M.l,W-M.r);
-    g+='<text x="'+x.toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+esc(l.t)+'</text>';});
+    g+='<text x="'+x.toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">'+esc(l.t)+'</text>';});
   return g;
 }
 function xlab(dates,k){k=k||5;const out=[];
@@ -492,8 +619,8 @@ function chartHist(el,r,vHist,bins){
   const yd=[0,Math.max(Math.max.apply(null,cnt),Math.max.apply(null,dens))*1.08],xd=[lo,hi];
   let g="";
   for(let i=0;i<=4;i++){const v=yd[1]*i/4,y=px_(v,yd,H-M.b,M.t);
-    g+='<line x1="'+M.l+'" y1="'+y.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y.toFixed(1)+'" stroke="#C3CABF" stroke-dasharray="2 3"/>';
-    g+='<text x="'+(M.l-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-family="monospace" font-size="10" fill="#55636B">'+v.toFixed(0)+'</text>';}
+    g+='<line x1="'+M.l+'" y1="'+y.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y.toFixed(1)+'" stroke="#333B4D" stroke-dasharray="2 3"/>';
+    g+='<text x="'+(M.l-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-family="monospace" font-size="10" fill="#8E9BB0">'+v.toFixed(0)+'</text>';}
   cnt.forEach(function(c,i){
     const x0=px_(lo+w*i,xd,M.l,W-M.r),x1=px_(lo+w*(i+1),xd,M.l,W-M.r),y=px_(c,yd,H-M.b,M.t);
     const cola=lo+w*(i+1)<=-vHist;
@@ -501,9 +628,9 @@ function chartHist(el,r,vHist,bins){
   const dp=dens.map((v,i)=>(i?"L":"M")+px_(lo+w*(i+0.5),xd,M.l,W-M.r).toFixed(1)+","+px_(v,yd,H-M.b,M.t).toFixed(1)).join(" ");
   g+='<path d="'+dp+'" fill="none" stroke="var(--au)" stroke-width="2"/>';
   const xv=px_(-vHist,xd,M.l,W-M.r);
-  g+='<line x1="'+xv.toFixed(1)+'" y1="'+M.t+'" x2="'+xv.toFixed(1)+'" y2="'+(H-M.b)+'" stroke="#14202B" stroke-width="1.5" stroke-dasharray="4 3"/>';
-  g+='<text x="'+(xv+5).toFixed(1)+'" y="'+(M.t+12)+'" font-family="monospace" font-size="10" fill="#14202B">VaR '+(S.conf*100).toFixed(1)+'%</text>';
-  [lo,(lo+hi)/2,hi].forEach(function(v){g+='<text x="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+fmtP(v,1)+'</text>';});
+  g+='<line x1="'+xv.toFixed(1)+'" y1="'+M.t+'" x2="'+xv.toFixed(1)+'" y2="'+(H-M.b)+'" stroke="#F4F6F8" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  g+='<text x="'+(xv+5).toFixed(1)+'" y="'+(M.t+12)+'" font-family="monospace" font-size="10" fill="#F4F6F8">VaR '+(S.conf*100).toFixed(1)+'%</text>';
+  [lo,(lo+hi)/2,hi].forEach(function(v){g+='<text x="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">'+fmtP(v,1)+'</text>';});
   el.innerHTML=svgWrap(g);
 }
 function chartQQ(el,r){
@@ -513,39 +640,39 @@ function chartQQ(el,r){
   let g=axes(xd,yd,v=>fmtP(v,1),4,[]);
   const a=Math.max(xd[0],yd[0]),b=Math.min(xd[1],yd[1]);
   g+='<line x1="'+px_(a,xd,M.l,W-M.r).toFixed(1)+'" y1="'+px_(a,yd,H-M.b,M.t).toFixed(1)+'" x2="'+px_(b,xd,M.l,W-M.r).toFixed(1)+'" y2="'+px_(b,yd,H-M.b,M.t).toFixed(1)+'" stroke="var(--au)" stroke-width="2"/>';
-  s.forEach(function(v,i){g+='<circle cx="'+px_(th[i],xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(v,yd,H-M.b,M.t).toFixed(1)+'" r="1.7" fill="#14202B" opacity=".45"/>';});
-  g+='<text x="'+W/2+'" y="'+(H-6)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">Cuantil teórico normal</text>';
+  s.forEach(function(v,i){g+='<circle cx="'+px_(th[i],xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(v,yd,H-M.b,M.t).toFixed(1)+'" r="1.7" fill="#F4F6F8" opacity=".45"/>';});
+  g+='<text x="'+W/2+'" y="'+(H-6)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">Cuantil teórico normal</text>';
   el.innerHTML=svgWrap(g);
 }
 function chartScatter(el,x,y,b0,b1,labx,laby){
   const xd=ext([x]),yd=ext([y]);
   let g=axes(xd,yd,v=>fmtP(v,1),4,[]);
-  x.forEach(function(v,i){g+='<circle cx="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(y[i],yd,H-M.b,M.t).toFixed(1)+'" r="1.9" fill="#55636B" opacity=".45"/>';});
+  x.forEach(function(v,i){g+='<circle cx="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(y[i],yd,H-M.b,M.t).toFixed(1)+'" r="1.9" fill="#8E9BB0" opacity=".45"/>';});
   const y0=b0+b1*xd[0],y1=b0+b1*xd[1];
   g+='<line x1="'+M.l+'" y1="'+px_(y0,yd,H-M.b,M.t).toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+px_(y1,yd,H-M.b,M.t).toFixed(1)+'" stroke="var(--au)" stroke-width="2.2"/>';
-  g+='<text x="'+W/2+'" y="'+(H-6)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+esc(labx)+'</text>';
-  g+='<text x="'+M.l+'" y="'+(M.t-4)+'" font-family="monospace" font-size="10" fill="#55636B">'+esc(laby)+'</text>';
+  g+='<text x="'+W/2+'" y="'+(H-6)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">'+esc(labx)+'</text>';
+  g+='<text x="'+M.l+'" y="'+(M.t-4)+'" font-family="monospace" font-size="10" fill="#8E9BB0">'+esc(laby)+'</text>';
   el.innerHTML=svgWrap(g);
 }
 function chartHeat(el,names,mat){
   const n=names.length,cell=Math.min(88,(W-170)/n),x0=160,y0=44,h=y0+n*cell+18;
   let g="";
   for(let i=0;i<n;i++){
-    g+='<text x="'+(x0-8)+'" y="'+(y0+i*cell+cell/2+4)+'" text-anchor="end" font-family="monospace" font-size="11" fill="#14202B">'+esc(names[i])+'</text>';
-    g+='<text x="'+(x0+i*cell+cell/2)+'" y="'+(y0-10)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+esc(names[i])+'</text>';
+    g+='<text x="'+(x0-8)+'" y="'+(y0+i*cell+cell/2+4)+'" text-anchor="end" font-family="monospace" font-size="11" fill="#F4F6F8">'+esc(names[i])+'</text>';
+    g+='<text x="'+(x0+i*cell+cell/2)+'" y="'+(y0-10)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">'+esc(names[i])+'</text>';
     for(let j=0;j<n;j++){
       const c=mat[i][j];
       const col=c>=0?"rgba(169,129,43,"+(Math.abs(c)*0.85).toFixed(2)+")":"rgba(122,46,59,"+(Math.abs(c)*0.85).toFixed(2)+")";
-      g+='<rect x="'+(x0+j*cell)+'" y="'+(y0+i*cell)+'" width="'+(cell-2)+'" height="'+(cell-2)+'" fill="'+col+'" stroke="#C3CABF"><title>'+esc(names[i])+' vs '+esc(names[j])+': '+c.toFixed(3)+'</title></rect>';
-      g+='<text x="'+(x0+j*cell+cell/2-1)+'" y="'+(y0+i*cell+cell/2+4)+'" text-anchor="middle" font-family="monospace" font-size="11" fill="'+(Math.abs(c)>0.6?"#F2F4EF":"#14202B")+'">'+c.toFixed(2)+'</text>';}}
+      g+='<rect x="'+(x0+j*cell)+'" y="'+(y0+i*cell)+'" width="'+(cell-2)+'" height="'+(cell-2)+'" fill="'+col+'" stroke="#333B4D"><title>'+esc(names[i])+' vs '+esc(names[j])+': '+c.toFixed(3)+'</title></rect>';
+      g+='<text x="'+(x0+j*cell+cell/2-1)+'" y="'+(y0+i*cell+cell/2+4)+'" text-anchor="middle" font-family="monospace" font-size="11" fill="'+(Math.abs(c)>0.6?"#F2F4EF":"#F4F6F8")+'">'+c.toFixed(2)+'</text>';}}
   el.innerHTML='<svg viewBox="0 0 '+W+' '+h+'" role="img">'+g+'</svg>';
 }
 function chartBT(el,r,varv,W_){
   const rs=r.slice(W_),xd=[0,rs.length-1],neg=varv.map(v=>-v),yd=ext([rs,neg]);
   let g=axes(xd,yd,v=>fmtP(v,1),4,[]);
   rs.forEach(function(v,i){const ex=v<neg[i];
-    g+='<circle cx="'+px_(i,xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(v,yd,H-M.b,M.t).toFixed(1)+'" r="'+(ex?2.6:1.5)+'" fill="'+(ex?"var(--loss)":"#55636B")+'" opacity="'+(ex?1:.35)+'"/>';});
-  g+=line(neg,xd,yd,"#14202B",1.6,false);
+    g+='<circle cx="'+px_(i,xd,M.l,W-M.r).toFixed(1)+'" cy="'+px_(v,yd,H-M.b,M.t).toFixed(1)+'" r="'+(ex?2.6:1.5)+'" fill="'+(ex?"var(--loss)":"#8E9BB0")+'" opacity="'+(ex?1:.35)+'"/>';});
+  g+=line(neg,xd,yd,"#F4F6F8",1.6,false);
   el.innerHTML=svgWrap(g);
 }
 function chartHBars(el,items){
@@ -553,9 +680,9 @@ function chartHBars(el,items){
   let g="";
   items.forEach(function(it,i){
     const y=30+i*34,w=Math.abs(it.v)/maxv*xw;
-    g+='<text x="'+(x0-10)+'" y="'+(y+15)+'" text-anchor="end" font-family="monospace" font-size="11.5" fill="#14202B">'+esc(it.n)+'</text>';
+    g+='<text x="'+(x0-10)+'" y="'+(y+15)+'" text-anchor="end" font-family="monospace" font-size="11.5" fill="#F4F6F8">'+esc(it.n)+'</text>';
     g+='<rect x="'+x0+'" y="'+y+'" width="'+w.toFixed(1)+'" height="21" fill="'+(it.v<0?"var(--loss)":"var(--gain)")+'" opacity=".8"/>';
-    g+='<text x="'+(x0+w+8).toFixed(1)+'" y="'+(y+15)+'" font-family="monospace" font-size="11.5" fill="#14202B">'+fmtP(it.v,2)+'</text>';});
+    g+='<text x="'+(x0+w+8).toFixed(1)+'" y="'+(y+15)+'" font-family="monospace" font-size="11.5" fill="#F4F6F8">'+fmtP(it.v,2)+'</text>';});
   el.innerHTML='<svg viewBox="0 0 '+W+' '+h+'" role="img">'+g+'</svg>';
 }
 function randnJS(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
@@ -607,7 +734,7 @@ function chartFan(el,S0,banda){
   g+='<path d="'+area(banda.p95,banda.p05)+'" fill="var(--slate)" opacity=".18"/>';
   g+='<path d="'+area(banda.p75,banda.p25)+'" fill="var(--slate)" opacity=".30"/>';
   const y0=px_(S0,yd,H-M.b,M.t);
-  g+='<line x1="'+M.l+'" y1="'+y0.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y0.toFixed(1)+'" stroke="#14202B" stroke-width="1.3" stroke-dasharray="4 3"/>';
+  g+='<line x1="'+M.l+'" y1="'+y0.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y0.toFixed(1)+'" stroke="#F4F6F8" stroke-width="1.3" stroke-dasharray="4 3"/>';
   g+=line(banda.p50,xd,yd,"var(--au)",2.2,false);
   el.innerHTML=svgWrap(g);
 }
@@ -622,9 +749,9 @@ function chartHistPrice(el,terminal,S0,varSim,bins){
     const cola=lo+w*(i+1)<=S0-varSim;
     g+='<rect x="'+x0.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(0.6,x1-x0-0.6).toFixed(1)+'" height="'+(H-M.b-y).toFixed(1)+'" fill="'+(cola?"var(--loss)":"var(--slate)")+'" opacity="'+(cola?.85:.42)+'"/>';});
   const xS0=px_(S0,xd,M.l,W-M.r);
-  g+='<line x1="'+xS0.toFixed(1)+'" y1="'+M.t+'" x2="'+xS0.toFixed(1)+'" y2="'+(H-M.b)+'" stroke="#14202B" stroke-width="1.5" stroke-dasharray="4 3"/>';
-  g+='<text x="'+(xS0+5).toFixed(1)+'" y="'+(M.t+12)+'" font-family="monospace" font-size="10" fill="#14202B">Precio actual</text>';
-  [lo,(lo+hi)/2,hi].forEach(function(v){g+='<text x="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+v.toFixed(0)+'</text>';});
+  g+='<line x1="'+xS0.toFixed(1)+'" y1="'+M.t+'" x2="'+xS0.toFixed(1)+'" y2="'+(H-M.b)+'" stroke="#F4F6F8" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  g+='<text x="'+(xS0+5).toFixed(1)+'" y="'+(M.t+12)+'" font-family="monospace" font-size="10" fill="#F4F6F8">Precio actual</text>';
+  [lo,(lo+hi)/2,hi].forEach(function(v){g+='<text x="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#8E9BB0">'+v.toFixed(0)+'</text>';});
   el.innerHTML=svgWrap(g);
 }
 const $=id=>document.getElementById(id);
@@ -639,8 +766,9 @@ function initUI(){
   $("pick").innerHTML=DATA.series.map(s=>'<button class="mchip" data-k="'+s.key+'" style="--acc:'+s.col+'" aria-pressed="'+S.sel.includes(s.key)+'">'+esc(s.sym)+' · '+esc(s.name)+'</button>').join("");
   Array.prototype.forEach.call($("pick").querySelectorAll(".mchip"),function(b){
     b.onclick=function(){const k=b.dataset.k;
-      if(S.sel.includes(k)){if(S.sel.length<=2)return;S.sel=S.sel.filter(x=>x!==k);}else S.sel.push(k);
+      if(S.sel.includes(k)){if(S.sel.length<=1)return;S.sel=S.sel.filter(x=>x!==k);}else S.sel.push(k);
       if(!S.sel.includes(S.main))S.main=S.sel[0];
+      S.pesos={};// cambiar que activos estan en el estudio reinicia a pesos iguales entre los nuevos seleccionados
       b.setAttribute("aria-pressed",S.sel.includes(k));fillSelects();render();};});
   fillSelects();
 }
@@ -649,7 +777,14 @@ function fillSelects(){
     return '<option value="'+k+'" '+(k===S.main?"selected":"")+'>'+esc(s.name)+'</option>';}).join("");
   $("bench").innerHTML=DATA.series.map(s=>'<option value="'+s.key+'" '+(s.key===S.bench?"selected":"")+'>'+esc(s.name)+'</option>').join("");
 }
+function aplicarTema(t){
+  document.documentElement.setAttribute("data-theme",t);
+  try{localStorage.setItem("lab-theme",t);}catch(e){}
+  const b=$("btnTheme");if(b)b.textContent=t==="light"?"Modo oscuro":"Modo claro";
+}
 function wire(){
+  aplicarTema(document.documentElement.getAttribute("data-theme")==="light"?"light":"dark");
+  $("btnTheme").onclick=()=>aplicarTema(document.documentElement.getAttribute("data-theme")==="light"?"dark":"light");
   $("main").onchange=e=>{S.main=e.target.value;render();};
   $("bench").onchange=e=>{S.bench=e.target.value;render();};
   $("freq").onchange=e=>{S.freq=e.target.value;S.mcHor=S.freq==="d"?60:12;$("mcHor").value=S.mcHor;render();};
@@ -722,7 +857,7 @@ function render(){
   $("stFine").textContent=(main.tick||"").toUpperCase().slice(0,9);
   $("stVol").textContent=fmtP(st.volA,1);
   $("stVar").textContent=fmtP(vs.hist,2);
-  ["mainName2","mainName4","mainName7","mainName9"].forEach(function(id){if($(id))$(id).textContent=main.name;});
+  ["mainName2","mainName4","mainName7"].forEach(function(id){if($(id))$(id).textContent=main.name;});
   if(!$("csvTxt")){
     $("dataStatus").innerHTML= DATA.demo
       ? '<div class="note warn"><b>Serie DEMO sintética.</b> Modelo de factores con colas pesadas y agrupamiento de volatilidad, semilla fija: todos los equipos ven exactamente los mismos datos y coinciden con <code>datos_demo.csv</code>. Sirve para aprender el método, <b>no</b> para el entregable. Usen “Datos en vivo” si esta página está publicada, o “Cargar mi CSV” con series propias.</div>'
@@ -860,29 +995,35 @@ function render(){
 
   const nombresMetodo={boot:"Bootstrap histórico",t:"t-Student calibrada",normal:"Normal (browniano geométrico)"};
   const horMC=Math.max(5,Math.min(252,S.mcHor));
-  const mc=simularMC(main,st,S.mcMetodo,horMC,S.mcSims);
+  const cartera=construirCartera(V,S.sel,S.pesos);
+  const esCartera=!!cartera._cartera;
+  renderCartWrap(V,cartera);
+  $("mainName9").textContent=esCartera?cartera._etiqueta:cartera.name;
+  const stC=stats(cartera,f,rfP),vsC=varSet(cartera,f,S.conf,S.hor);
+  const mc=simularMC(cartera,stC,S.mcMetodo,horMC,S.mcSims);
   const retTerm=mc.terminal.map(p=>Math.log(p/mc.S0));
   const varSimRet=-pct(retTerm,1-S.conf);
   const varSimPx=mc.S0*(1-Math.exp(-varSimRet));
-  const varAnaliticoH=vs.hist*Math.sqrt(horMC/S.hor);
+  const varAnaliticoH=vsC.hist*Math.sqrt(horMC/S.hor);
   const probBaja=mc.terminal.filter(p=>p<mc.S0).length/mc.terminal.length;
+  const precioLbl=esCartera?"Índice de cartera (base 100)":"Precio actual";
   $("fxMC").innerHTML='P(t) = P(0) · exp( Σ r_i ),  i = 1..'+horMC+'   ·   método: '+nombresMetodo[S.mcMetodo]+
-    (S.mcMetodo==="t"?'  (g.l. ≈ '+fmtN(mc.df,1)+')':'');
+    (S.mcMetodo==="t"?'  (g.l. ≈ '+fmtN(mc.df,1)+')':'')+(esCartera?'   ·   cartera: '+esc(cartera._etiqueta):'');
   $("kpiMC").innerHTML=kpi([
-    ["Precio actual",mc.S0.toFixed(2),main.tick+" · último dato de la muestra"],
-    ["Mediana proyectada",fmtP(mc.banda.p50[mc.banda.p50.length-1]/mc.S0-1),"Precio: "+mc.banda.p50[mc.banda.p50.length-1].toFixed(2)+" a "+horMC+" "+perPl],
+    [precioLbl,mc.S0.toFixed(2),esCartera?"Índice sintético base 100, no es un precio de mercado":main.tick+" · último dato de la muestra"],
+    ["Mediana proyectada",fmtP(mc.banda.p50[mc.banda.p50.length-1]/mc.S0-1),(esCartera?"Índice":"Precio")+": "+mc.banda.p50[mc.banda.p50.length-1].toFixed(2)+" a "+horMC+" "+perPl],
     ["Rango 90%",mc.banda.p05[mc.banda.p05.length-1].toFixed(2)+" — "+mc.banda.p95[mc.banda.p95.length-1].toFixed(2),"Percentiles 5 y 95 al final del horizonte"],
     ["Prob. de terminar por debajo",fmtP(probBaja,1),"De las "+mc.nsims.toLocaleString("es-MX")+" trayectorias simuladas"],
     ["VaR simulado ("+cP+"%)",fmtP(varSimRet),"Percentil "+fmtP(1-S.conf,1)+" del rendimiento acumulado simulado"],
-    ["VaR analítico escalado",fmtP(varAnaliticoH),"VaR histórico × √("+horMC+"/"+S.hor+"): supone independencia perfecta"]]);
+    ["VaR analítico escalado",fmtP(varAnaliticoH),"VaR histórico"+(esCartera?" de la cartera":"")+" × √("+horMC+"/"+S.hor+"): supone independencia perfecta"]]);
   chartFan($("chMCFan"),mc.S0,mc.banda);
   chartHistPrice($("chMCHist"),mc.terminal,mc.S0,varSimPx);
   const filasMC=[[5,"p05"],[10,null],[25,"p25"],[50,"p50"],[75,"p75"],[90,null],[95,"p95"]];
-  $("tbMC").innerHTML='<thead><tr><th>Percentil</th><th>Precio proyectado</th><th>Variación vs. hoy</th></tr></thead><tbody>'+
+  $("tbMC").innerHTML='<thead><tr><th>Percentil</th><th>'+(esCartera?"Índice proyectado":"Precio proyectado")+'</th><th>Variación vs. hoy</th></tr></thead><tbody>'+
     [5,10,25,50,75,90,95].map(function(p){const v=pct(mc.terminal,p/100);
       return '<tr><td>P'+p+'</td><td>'+v.toFixed(2)+'</td><td class="'+(v<mc.S0?"neg":"pos")+'">'+fmtP(v/mc.S0-1)+'</td></tr>';}).join("")+'</tbody>';
   $("tbMCvsVaR").innerHTML='<thead><tr><th>Fuente</th><th>VaR '+cP+'%</th><th>Supuesto principal</th></tr></thead><tbody>'+
-    '<tr><td>Analítico (secc. 5), escalado a '+horMC+' '+perPl+'</td><td>'+fmtP(varAnaliticoH)+'</td><td>Raíz del tiempo: rendimientos i.i.d.</td></tr>'+
+    '<tr><td>Analítico'+(esCartera?" de la cartera (recalculado, no es el de secc. 5)":" (secc. 5)")+', escalado a '+horMC+' '+perPl+'</td><td>'+fmtP(varAnaliticoH)+'</td><td>Raíz del tiempo: rendimientos i.i.d.</td></tr>'+
     '<tr><td>Simulación Montecarlo, '+nombresMetodo[S.mcMetodo].toLowerCase()+'</td><td>'+fmtP(varSimRet)+'</td><td>'+(S.mcMetodo==="boot"?"Distribución empírica completa, pero i.i.d.":S.mcMetodo==="t"?"Colas gruesas calibradas, pero i.i.d.":"Normalidad, i.i.d.")+'</td></tr></tbody>';
 
   const corrTxt=cset.filter(s=>s.key!==main.key).map(s=>"  vs "+s.name+": "+fmtN(corr(main.r,s.r),3)).join("\n");
@@ -898,10 +1039,11 @@ function render(){
 "DISTRIBUCION\n  Asimetria           : "+fmtN(st.sk,3)+"\n  Curtosis            : "+fmtN(st.ku)+" (exceso "+fmtN(exK)+")\n  Jarque-Bera         : "+fmtN(st.jb,1)+" -> "+(st.jb>5.991?"se rechaza normalidad":"no se rechaza normalidad")+"\n\n"+
 "CORRELACION (rendimientos)\n"+corrTxt+"\n\nESCENARIOS\n"+stress.map(s=>"  "+s.n+": "+fmtP(s.v)).join("\n")+"\n\n"+
 "SIMULACION MONTECARLO ("+nombresMetodo[S.mcMetodo]+", "+mc.nsims+" trayectorias, "+horMC+" "+perPl+")\n"+
-"  Precio actual         : "+mc.S0.toFixed(2)+"\n"+
+(esCartera?"  Cartera simulada     : "+cartera._etiqueta+" (no es "+main.name+"; ver seccion 'Activo principal' arriba)\n":"  Activo simulado      : "+cartera.name+"\n")+
+"  "+precioLbl.padEnd(22," ")+": "+mc.S0.toFixed(2)+"\n"+
 "  Mediana proyectada    : "+mc.banda.p50[mc.banda.p50.length-1].toFixed(2)+" ("+fmtP(mc.banda.p50[mc.banda.p50.length-1]/mc.S0-1)+")\n"+
 "  Rango 90% (P5-P95)    : "+mc.banda.p05[mc.banda.p05.length-1].toFixed(2)+" a "+mc.banda.p95[mc.banda.p95.length-1].toFixed(2)+"\n"+
-"  Prob. de terminar bajo el precio actual: "+fmtP(probBaja,1)+"\n"+
+"  Prob. de terminar bajo el "+(esCartera?"indice":"precio")+" actual: "+fmtP(probBaja,1)+"\n"+
 "  VaR simulado vs analitico escalado ("+cP+"%): "+fmtP(varSimRet)+" vs "+fmtP(varAnaliticoH);
 }
 const QZ=[
@@ -942,4 +1084,3 @@ function quiz(){
 </script>
 </body>
 </html>
-
