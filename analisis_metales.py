@@ -1,32 +1,32 @@
 """
 Analisis cuantitativo de riesgo de commodities.
- 
+
 Replica exactamente los calculos del laboratorio HTML. Si un numero no coincide
 entre las dos herramientas, uno de los dos esta mal: encontrarlo es el ejercicio.
- 
+
 Uso:
     python analisis_metales.py --csv datos_demo.csv --principal Oro --benchmark SP500
     python analisis_metales.py --descargar --principal Oro --benchmark SP500
     python analisis_metales.py --csv datos_demo.csv --frecuencia M --confianza 0.975
     python analisis_metales.py --csv datos_demo.csv --salida resultados.xlsx --json metricas.json
 """
- 
+
 from __future__ import annotations
- 
+
 import argparse
 import json
- 
+
 import numpy as np
 import pandas as pd
 from scipy import stats
- 
+
 TICKERS = {
     "Oro": "GC=F", "Plata": "SI=F", "Platino": "PL=F", "Cobre": "HG=F",
     "Petroleo": "CL=F", "GasNatural": "NG=F", "Trigo": "ZW=F", "Maiz": "ZC=F",
     "SP500": "^GSPC", "Dolar": "DX-Y.NYB",
 }
- 
- 
+
+
 # ---------------------------------------------------------------- datos
 def cargar_csv(ruta: str) -> pd.DataFrame:
     df = pd.read_csv(ruta, sep=None, engine="python")
@@ -38,8 +38,8 @@ def cargar_csv(ruta: str) -> pd.DataFrame:
     if (df <= 0).any().any():
         raise ValueError("Hay precios menores o iguales a cero. Revisa la fuente.")
     return df
- 
- 
+
+
 def descargar(inicio: str = "2019-01-01") -> pd.DataFrame:
     import yfinance as yf
     crudo = yf.download(list(TICKERS.values()), start=inicio,
@@ -47,21 +47,22 @@ def descargar(inicio: str = "2019-01-01") -> pd.DataFrame:
     inverso = {v: k for k, v in TICKERS.items()}
     crudo.columns = [inverso.get(c, c) for c in crudo.columns]
     return crudo.ffill().dropna()
- 
- 
+"""
+
+
 def remuestrear(px: pd.DataFrame, frecuencia: str) -> tuple[pd.DataFrame, int]:
     """D -> 252 periodos por anio; M -> 12, tomando el ultimo precio del mes."""
     if frecuencia.upper().startswith("M"):
         return px.resample("ME").last().dropna(), 12
     return px, 252
- 
- 
+
+
 def rendimientos(px: pd.DataFrame, tipo: str = "log") -> pd.DataFrame:
     if tipo == "log":
         return np.log(px / px.shift(1)).dropna()
     return px.pct_change().dropna()
- 
- 
+
+
 # ------------------------------------------------------------- metricas
 def ewma_vol(r: pd.Series, f: int, lam: float = 0.94) -> float:
     """RiskMetrics: h_t = lam*h_{t-1} + (1-lam)*r_{t-1}^2."""
@@ -69,16 +70,16 @@ def ewma_vol(r: pd.Series, f: int, lam: float = 0.94) -> float:
     for x in r.iloc[:-1]:
         h = lam * h + (1 - lam) * x**2
     return float(np.sqrt(h * f))
- 
- 
+
+
 def ewma_serie(r: pd.Series, f: int, lam: float = 0.94) -> pd.Series:
     h, salida = float(r.iloc[0]) ** 2, []
     for x in r:
         h = lam * h + (1 - lam) * x**2
         salida.append(np.sqrt(h * f))
     return pd.Series(salida, index=r.index, name="ewma")
- 
- 
+
+
 def drawdown(px: pd.Series) -> dict:
     serie = px / px.cummax() - 1
     valle = serie.idxmin()
@@ -93,8 +94,8 @@ def drawdown(px: pd.Series) -> dict:
         "recuperacion": recuperado.index[0] if len(recuperado) else None,
         "bajo_agua": float((serie < -1e-4).mean()),
     }
- 
- 
+
+
 def resumen(px: pd.Series, r: pd.Series, f: int, rf: float, tipo: str = "log") -> dict:
     n = len(r)
     mu, sd = float(r.mean()), float(r.std(ddof=1))
@@ -121,7 +122,7 @@ def resumen(px: pd.Series, r: pd.Series, f: int, rf: float, tipo: str = "log") -
         "maximo": float(r.max()),
         "minimo": float(r.min()),
         "pct_positivos": float((r > 0).mean()),
-        "mediana": float(r.median()),
+"""
         "asimetria": asim,
         "curtosis": curt,
         "jarque_bera": float(jb),
@@ -135,8 +136,8 @@ def resumen(px: pd.Series, r: pd.Series, f: int, rf: float, tipo: str = "log") -
         "calmar": cagr / abs(dd["mdd"]),
         "_dd_serie": dd["serie"],
     }
- 
- 
+
+
 def var_cvar(r: pd.Series, c: float = 0.99, h: int = 1) -> dict:
     """VaR expresado como perdida positiva. Tres metodos + Expected Shortfall."""
     mu, sd = float(r.mean()), float(r.std(ddof=1))
@@ -155,11 +156,11 @@ def var_cvar(r: pd.Series, c: float = 0.99, h: int = 1) -> dict:
         "z": float(z),
         "z_cf": float(z_cf),
     }
- 
- 
+
+
 def backtest_kupiec(r: pd.Series, c: float = 0.99, ventana: int = 250) -> pd.DataFrame:
     """VaR con ventana movil, evaluado fuera de muestra.
- 
+
     LR_POF sigue una chi2(1): se rechaza la cobertura correcta si LR > 3.841.
     """
     metodos = ("historico", "parametrico", "cornish_fisher")
@@ -167,13 +168,13 @@ def backtest_kupiec(r: pd.Series, c: float = 0.99, ventana: int = 250) -> pd.Dat
     total = len(r) - ventana
     if total < 20:
         raise ValueError(f"Muestra insuficiente: se requieren mas de {ventana + 20} observaciones.")
- 
+
     for t in range(ventana, len(r)):
         v = var_cvar(r.iloc[t - ventana:t], c, 1)
         for m in metodos:
             if r.iloc[t] < -v[m]:
                 excepciones[m] += 1
- 
+
     p, filas = 1 - c, []
     for m, N in excepciones.items():
         if 0 < N < total:
@@ -191,14 +192,14 @@ def backtest_kupiec(r: pd.Series, c: float = 0.99, ventana: int = 250) -> pd.Dat
             "veredicto": "no se rechaza" if lr < 3.841 else "SE RECHAZA",
         })
     return pd.DataFrame(filas)
- 
- 
+
+
 def beta_ols(r_activo: pd.Series, r_bench: pd.Series) -> dict:
     res = stats.linregress(r_bench, r_activo)
     return {"beta": float(res.slope), "alfa": float(res.intercept),
-            "r2": float(res.rvalue**2), "p_valor": float(res.pvalue)}
- 
- 
+"""
+
+
 def multifactor(r_activo: pd.Series, factores: pd.DataFrame) -> dict:
     """OLS con constante, sin statsmodels, para mantener dependencias minimas."""
     X = np.column_stack([np.ones(len(factores)), factores.values])
@@ -209,18 +210,18 @@ def multifactor(r_activo: pd.Series, factores: pd.DataFrame) -> dict:
     return {"alfa": float(b[0]),
             "betas": {c: float(v) for c, v in zip(factores.columns, b[1:])},
             "r2": 1 - ss_res / ss_tot}
- 
- 
+
+
 def monte_carlo(px: pd.Series, r: pd.Series, metodo: str = "boot",
                 horizonte: int = 60, nsims: int = 5000,
                 conf: float = 0.99, semilla: int | None = None) -> dict:
     """Simula trayectorias futuras del precio.
- 
+
     metodo: 'boot' remuestrea rendimientos historicos con reemplazo (conserva
     la forma exacta de la distribucion, incluidas colas y asimetria);
     't' usa una t de Student calibrada a la curtosis muestral; 'normal' usa
     un browniano geometrico estandar.
- 
+
     Los tres metodos asumen rendimientos independientes entre si (i.i.d.): no
     reproducen el agrupamiento de volatilidad de un GARCH/EWMA ni tendencias.
     """
@@ -228,7 +229,7 @@ def monte_carlo(px: pd.Series, r: pd.Series, metodo: str = "boot",
     S0 = float(px.iloc[-1])
     m, sd = float(r.mean()), float(r.std(ddof=1))
     r_arr = r.values
- 
+
     if metodo == "boot":
         idx = rng.integers(0, len(r_arr), size=(nsims, horizonte))
         choques = r_arr[idx]
@@ -240,18 +241,18 @@ def monte_carlo(px: pd.Series, r: pd.Series, metodo: str = "boot",
         choques = rng.normal(m, sd, size=(nsims, horizonte))
     else:
         raise ValueError("metodo debe ser 'boot', 't' o 'normal'")
- 
+
     acumulado = np.cumsum(choques, axis=1)
     trayectorias = S0 * np.exp(acumulado)
     terminal = trayectorias[:, -1]
- 
+
     niveles = (5, 10, 25, 50, 75, 90, 95)
     percentiles_terminal = {p: float(np.percentile(terminal, p)) for p in niveles}
     banda = {p: (S0 * np.exp(np.percentile(acumulado, p, axis=0))).tolist() for p in (5, 25, 50, 75, 95)}
- 
+
     ret_terminal = np.log(terminal / S0)
     var_sim = float(-np.percentile(ret_terminal, (1 - conf) * 100))
- 
+
     return {
         "metodo": metodo, "horizonte": horizonte, "nsims": nsims,
         "precio_actual": S0,
@@ -261,8 +262,8 @@ def monte_carlo(px: pd.Series, r: pd.Series, metodo: str = "boot",
         "prob_baja": float((terminal < S0).mean()),
         "var_simulado": var_sim,
     }
- 
- 
+
+
 def escenarios(betas: dict, v: dict, minimo: float, mdd: float) -> pd.DataFrame:
     filas = []
     for nombre, b in betas.items():
@@ -271,13 +272,13 @@ def escenarios(betas: dict, v: dict, minimo: float, mdd: float) -> pd.DataFrame:
                           "impacto": b * shock, "origen": "regresion"})
     filas += [
         {"escenario": "VaR historico", "impacto": -v["historico"], "origen": "modelo de cola"},
-        {"escenario": "CVaR", "impacto": -v["cvar"], "origen": "modelo de cola"},
+"""
         {"escenario": "Peor periodo observado", "impacto": minimo, "origen": "dato observado"},
         {"escenario": "Maximo drawdown", "impacto": mdd, "origen": "dato observado"},
     ]
     return pd.DataFrame(filas)
- 
- 
+
+
 def tabla_comparativa(px: pd.DataFrame, r: pd.DataFrame, f: int, rf: float,
                       tipo: str, c: float, h: int) -> pd.DataFrame:
     filas = []
@@ -291,8 +292,8 @@ def tabla_comparativa(px: pd.DataFrame, r: pd.DataFrame, f: int, rf: float,
             "cvar": v["cvar"], "asimetria": s["asimetria"], "curtosis": s["curtosis"],
         })
     return pd.DataFrame(filas).set_index("activo")
- 
- 
+
+
 # -------------------------------------------------------------- reporte
 def ficha(nombre: str, s: dict, v: dict, bt: pd.DataFrame, corr: pd.DataFrame,
           beta: dict | None, esc: pd.DataFrame, cfg: dict, mc: dict | None = None) -> str:
@@ -346,7 +347,7 @@ def ficha(nombre: str, s: dict, v: dict, bt: pd.DataFrame, corr: pd.DataFrame,
         corr.round(3).to_string(),
         "",
     ]
-    if beta:
+"""
         aviso = "   <- R2 muy baja: la beta es poco informativa" if beta["r2"] < 0.15 else ""
         lineas += [
             f"BETA CONTRA {cfg['benchmark'].upper()}",
@@ -377,8 +378,8 @@ def ficha(nombre: str, s: dict, v: dict, bt: pd.DataFrame, corr: pd.DataFrame,
             "  agrupamiento de volatilidad (GARCH/EWMA) ni tendencias.",
         ]
     return "\n".join(lineas)
- 
- 
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Analisis de riesgo de metales")
     ap.add_argument("--csv", help="archivo de precios; primera columna la fecha")
@@ -400,20 +401,20 @@ def main() -> None:
     ap.add_argument("--mc-semilla", type=int, default=None,
                     help="semilla para reproducir la misma simulacion")
     a = ap.parse_args()
- 
+
     if not a.csv and not a.descargar:
         ap.error("indica --csv o --descargar")
- 
+
     px_bruto = descargar() if a.descargar else cargar_csv(a.csv)
     px, f = remuestrear(px_bruto, a.frecuencia)
     r = rendimientos(px, a.tipo)
- 
+
     principal = a.principal or px.columns[0]
     if principal not in px.columns:
         raise SystemExit(f"'{principal}' no esta en los datos: {list(px.columns)}")
     benchmark = a.benchmark if a.benchmark in px.columns else None
     ventana = 250 if f == 252 else 36
- 
+
     cfg = {
         "fuente": "Yahoo Finance" if a.descargar else a.csv,
         "inicio": f"{px.index[0]:%Y-%m-%d}", "fin": f"{px.index[-1]:%Y-%m-%d}",
@@ -421,25 +422,25 @@ def main() -> None:
         "tipo": a.tipo, "rf": a.rf, "confianza": a.confianza,
         "horizonte": a.horizonte, "ventana": ventana, "f": f,
         "benchmark": benchmark or "sin benchmark", "principal": principal,
-    }
- 
+"""
+
     s = resumen(px[principal], r[principal], f, a.rf, a.tipo)
     v = var_cvar(r[principal], a.confianza, a.horizonte)
     bt = backtest_kupiec(r[principal], a.confianza, ventana)
     corr = r.corr()
     beta = beta_ols(r[principal], r[benchmark]) if benchmark else None
- 
+
     columnas = [c for c in (benchmark, "Dolar") if c and c in r.columns and c != principal]
     mf = multifactor(r[principal], r[columnas]) if columnas else {"betas": {}, "r2": np.nan}
     esc = escenarios(mf["betas"], v, s["minimo"], s["max_drawdown"])
     comp = tabla_comparativa(px, r, f, a.rf, a.tipo, a.confianza, a.horizonte)
     mc = monte_carlo(px[principal], r[principal], a.mc_metodo, a.mc_horizonte,
                      a.mc_sims, a.confianza, a.mc_semilla)
- 
+
     print(ficha(principal, s, v, bt, corr, beta, esc, cfg, mc))
     print("\nCOMPARATIVO ENTRE ACTIVOS")
     print(comp.round(4).to_string())
- 
+
     if a.salida:
         with pd.ExcelWriter(a.salida) as w:
             px.to_excel(w, sheet_name="precios")
@@ -453,7 +454,7 @@ def main() -> None:
             comp.to_excel(w, sheet_name="comparativo")
             s["_dd_serie"].to_excel(w, sheet_name="drawdown")
         print(f"\nLibro guardado en {a.salida}")
- 
+
     if a.json:
         mensual = px.resample("ME").last().dropna()
         borde = np.histogram_bin_edges(r[principal], bins=40)
@@ -490,8 +491,7 @@ def main() -> None:
         with open(a.json, "w", encoding="utf-8") as fh:
             json.dump(paquete, fh, ensure_ascii=False, indent=1)
         print(f"Metricas guardadas en {a.json}")
- 
- 
+
+
 if __name__ == "__main__":
     main()
- 
