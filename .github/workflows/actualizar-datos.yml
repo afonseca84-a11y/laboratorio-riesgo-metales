@@ -6,31 +6,31 @@
 # 06:15 en horario estandar), un rato despues del cierre del COMEX/CME de la
 # tarde previa. Ajusta el cron si prefieres otro horario.
 name: Actualizar datos de commodities
- 
+
 on:
   schedule:
     - cron: "15 11 * * 1-5"   # lunes a viernes
   workflow_dispatch: {}        # boton "Run workflow" manual en GitHub
- 
+
 permissions:
   contents: write
- 
+
 jobs:
   actualizar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
- 
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
- 
+
       - name: Instalar dependencias
         run: pip install yfinance pandas
- 
+
       - name: Descargar precios y regenerar precios.json
         run: python fetch_datos.py --inicio 2019-01-01
- 
+
       - name: Publicar si hubo cambios
         run: |
           git config user.name "actualizador-datos"
@@ -39,4 +39,4 @@ jobs:
           git diff --cached --quiet && echo "sin cambios" && exit 0
           git commit -m "Actualiza precios.json $(date -u +%Y-%m-%d)"
           git push
- 
+
