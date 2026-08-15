@@ -1,4 +1,7 @@
 """
+Descarga cierres diarios reales de Yahoo Finance y escribe precios.json,
+el archivo que index.html intenta leer al cargar ("Datos en vivo").
+
 Pensado para correr desde GitHub Actions una vez al dia (ver
 .github/workflows/actualizar-datos.yml), pero funciona igual en local:
 
@@ -35,7 +38,28 @@ def descargar(inicio: str) -> pd.DataFrame:
     inverso = {v: k for k, v in TICKERS.items()}
     crudo.columns = [inverso.get(c, c) for c in crudo.columns]
     crudo = crudo[[c for c in TICKERS if c in crudo.columns]]  # orden estable
-    return crudo.ffill().dropna(how="all").dropna()
+
+    # Diagnostico: cuantos dias tiene cada activo antes de rellenar huecos.
+    # Un ticker con menos datos reales que el resto (p.ej. por feriados de
+    # su bolsa, o por empezar a cotizar despues de "--inicio") no debe
+    # arrastrar al resto: antes se usaba un dropna() final que exigia dato
+    # valido en TODAS las columnas, y por eso un solo hueco en un activo
+    # (tipicamente el mas nuevo, como GasNatural) tumbaba esa fecha para
+    # todos los demas, dejando series "incompletas" o recortadas.
+    for c in crudo.columns:
+        validos = crudo[c].notna().sum()
+        print(f"  {c}: {validos} observaciones crudas de {len(crudo)} fechas",
+              file=sys.stderr)
+
+    # ffill: rellena huecos intermedios (feriados de una bolsa que en otra
+    # si opera) con el ultimo precio conocido de esa misma columna.
+    # bfill: si aun asi quedan NaN al inicio (el ticker empezo a cotizar
+    # despues de "--inicio"), se rellenan hacia atras con su primer precio
+    # real, para no perder ese activo del grafico ni truncar a los demas.
+    limpio = crudo.ffill().bfill()
+    # Solo se descarta una fecha si NINGUN activo tiene dato ese dia
+    # (p.ej. un feriado global); nunca por falta de UN solo activo.
+    return limpio.dropna(how="all")
 
 
 def main() -> None:
@@ -70,4 +94,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
