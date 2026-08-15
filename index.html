@@ -113,7 +113,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="ctl"><span class="lab">Datos</span><div style="display:flex;gap:6px"><button class="act ghost" id="btnCsv">Cargar mi CSV</button><button class="act ghost" id="btnLive">Datos en vivo</button><button class="act ghost" id="btnDemo">Volver a demo</button></div></div>
 </div>
 <nav class="rail" id="rail" role="tablist"></nav>
- 
+
 <section id="s1" class="on">
   <h2>1 · Datos y fuentes</h2>
   <p>Todo el análisis se sostiene en la serie de precios. Antes de calcular nada hay que fijar cuatro cosas: <b>qué precio</b> (spot LBMA, futuro continuo, ETF), <b>en qué moneda</b>, <b>con qué frecuencia</b> y <b>en qué ventana</b>. Cambiar cualquiera de ellas cambia todos los números que siguen.</p>
@@ -134,7 +134,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
     </tbody></table></div>
   <div class="note warn"><b>Regla del proyecto:</b> documenten fuente, ticker, ventana exacta (dd/mm/aaaa) y tratamiento de datos faltantes. Un análisis sin trazabilidad de datos no es replicable y no se califica.</div>
 </section>
- 
+
 <section id="s2">
   <h2>2 · Rendimiento histórico</h2>
   <p>El precio no es comparable entre metales: el oro cotiza en cientos de dólares y el cobre en unidades. El rendimiento sí lo es, porque es adimensional. Esa es la razón por la que todo el análisis de riesgo se hace sobre rendimientos y no sobre precios.</p>
@@ -147,7 +147,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbRet"></table></div>
   <div class="note"><b>Cómo justificarlo:</b> el CAGR responde "¿cuánto habría ganado quien compró y mantuvo?" y la media aritmética anualizada responde "¿cuánto espero ganar el próximo periodo?". El CAGR siempre es menor cuando hay volatilidad; esa brecha es el <i>lastre de volatilidad</i> y ya es, por sí misma, una medida de riesgo.</div>
 </section>
- 
+
 <section id="s3">
   <h2>3 · Volatilidad</h2>
   <p>La volatilidad es la desviación estándar de los rendimientos. Se calcula en la frecuencia de los datos y se anualiza con la raíz del número de periodos, un escalamiento que supone rendimientos independientes.</p>
@@ -161,7 +161,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbVol"></table></div>
   <div class="note"><b>Lectura esperada:</b> la plata suele duplicar la volatilidad del oro. Ese contraste es el argumento central de por qué el oro se usa como activo defensivo y la plata no, pese a que ambos son metales preciosos.</div>
 </section>
- 
+
 <section id="s4">
   <h2>4 · Máximos, mínimos y drawdown</h2>
   <p>La volatilidad castiga igual las subidas que las bajadas. El drawdown mide sólo lo que le duele al inversionista: la caída desde el máximo histórico previo hasta el valle, y cuánto tiempo tomó recuperarla.</p>
@@ -175,7 +175,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbDD"></table></div>
   <div class="note"><b>Cómo justificarlo:</b> el máximo drawdown es la métrica más intuitiva para un comité de inversión porque se expresa en la moneda del dolor real. Reporten siempre las tres cifras juntas: profundidad, duración de la caída y tiempo de recuperación. Un −20% que se recupera en dos meses no es el mismo riesgo que un −20% que tarda cuatro años.</div>
 </section>
- 
+
 <section id="s5">
   <h2>5 · Valor en Riesgo (VaR) y CVaR</h2>
   <p>El VaR responde una sola pregunta: <b>¿cuál es la pérdida que no se excederá con probabilidad c en el horizonte h?</b> No es la pérdida máxima. El CVaR (Expected Shortfall) sí mira dentro de la cola: es el promedio de las pérdidas que sí superan el VaR.</p>
@@ -192,7 +192,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="chBT"></div>
   <div class="legend"><span><i style="background:var(--slate)"></i>Rendimiento</span><span><i style="background:var(--ink)"></i>−VaR estimado</span><span><i style="background:var(--loss)"></i>Excepción</span></div>
 </section>
- 
+
 <section id="s6">
   <h2>6 · Distribución de rendimientos</h2>
   <p>Casi todo el modelo financiero estándar supone normalidad. Los metales rara vez la cumplen: tienen colas gruesas y, con frecuencia, asimetría. Verificarlo no es un trámite: determina si el VaR paramétrico del paso anterior es utilizable.</p>
@@ -202,7 +202,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="jbBox"></div>
   <div class="note"><b>Cómo leer el Q-Q:</b> si los puntos se separan de la recta hacia abajo en el extremo izquierdo, las pérdidas extremas son más frecuentes de lo que predice la normal. Esa curvatura es la justificación gráfica de por qué el VaR normal se queda corto.</div>
 </section>
- 
+
 <section id="s7">
   <h2>7 · Correlación y beta</h2>
   <p>El riesgo de un metal dentro de un portafolio no depende sólo de su volatilidad, sino de cómo se mueve respecto a lo demás. Dos activos volátiles pero poco correlacionados pueden formar una cartera más estable que uno solo de volatilidad media.</p>
@@ -218,7 +218,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="chBeta"></div>
   <div class="note warn"><b>Cuidado con la beta:</b> tiene sentido cuando el benchmark explica una parte razonable de la varianza. Si la R² es muy baja —típico en el oro contra un índice accionario— la beta es un número casi vacío y hay que decirlo. Ahí conviene sustituirla por regresión contra factores propios del metal: dólar, tasa real, inventarios.</div>
 </section>
- 
+
 <section id="s8">
   <h2>8 · Sensibilidad y escenarios de estrés</h2>
   <p>Las métricas anteriores describen el pasado. La sensibilidad traduce ese pasado en una respuesta condicional: si el factor se mueve X, ¿cuánto se mueve el metal? Se estima con una regresión multifactorial.</p>
@@ -230,7 +230,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbStress"></table></div>
   <div class="note"><b>Cierre del análisis:</b> junten las tres capas —métrica histórica, métrica de cola (VaR/CVaR) y escenario condicional— en una sola conclusión por metal. El proyecto no pide una tabla de estadísticos: pide una recomendación defendible sobre cuál metal ofrece mejor relación rendimiento-riesgo y por qué.</div>
 </section>
- 
+
 <section id="s9">
   <h2>9 · Simulación Montecarlo</h2>
   <p>Las secciones anteriores describen lo que ya pasó. Esta proyecta hacia adelante: miles de trayectorias posibles del precio, construidas con las mismas propiedades estadísticas que se midieron en los pasos 2 a 6, para ver un rango de dónde podría moverse el activo.</p>
@@ -261,7 +261,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbMCvsVaR"></table></div>
   <div class="note warn"><b>Qué NO capturan estos métodos:</b> tanto el bootstrap como las versiones normal y t-Student asumen rendimientos independientes entre periodos (i.i.d.). Ninguno reproduce el agrupamiento de volatilidad (una racha volátil no aumenta la probabilidad de que el siguiente periodo también lo sea, como sí ocurre con GARCH/EWMA) ni tendencias o reversión a la media. El bootstrap sí conserva la forma exacta de la distribución histórica —su asimetría y sus colas—, que es su ventaja sobre asumir normalidad.</div>
 </section>
- 
+
 <section id="s10">
   <h2>10 · Ficha de resultados y autoevaluación</h2>
   <h3>Resumen listo para el reporte</h3>
@@ -330,7 +330,7 @@ function ols(y,X){
 const fmtP=(x,d=2)=>(x*100).toFixed(d)+"%";
 const fmtN=(x,d=2)=>x.toFixed(d);
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
- 
+
 const META={
   Oro:{sym:"Au",tick:"GC=F",col:"var(--au)"},
   Plata:{sym:"Ag",tick:"SI=F",col:"var(--ag)"},
@@ -370,7 +370,7 @@ async function cargarVivo(){
 }
 let DATA=cargarDemo();
 const S={sel:["Oro","Plata","Platino","Cobre"],main:"Oro",bench:"SP500",freq:"d",rtype:"log",conf:0.99,hor:1,rf:0.0425,tab:"s1",mcMetodo:"boot",mcHor:60,mcSims:1500};
- 
+
 function view(){
   let dates=DATA.dates, series=DATA.series.map(s=>Object.assign({},s));
   if(S.freq==="m"){
@@ -564,7 +564,7 @@ function randChi2Aprox(df){ // Wilson-Hilferty: barato y suficiente para fines d
   return Math.max(val,1e-6);
 }
 function randT(df){const z=randnJS(),w=randChi2Aprox(df);return z/Math.sqrt(w/df);}
- 
+
 function simularMC(main,st,metodo,horizonte,nsims){
   const m=st.m,sd=st.sd,S0=main.px[main.px.length-1],r=main.r;
   const exkurt=Math.max(0,st.ku-3);
@@ -593,7 +593,7 @@ function simularMC(main,st,metodo,horizonte,nsims){
   terminal.sort((a,b)=>a-b);
   return {S0,banda,terminal,df,metodo,horizonte,nsims};
 }
- 
+
 function chartFan(el,S0,banda){
   const n=banda.p50.length,xd=[0,n-1];
   const yd=ext([banda.p05,banda.p95,[S0]]);
@@ -857,7 +857,7 @@ function render(){
   $("tbStress").innerHTML='<thead><tr><th>Escenario</th><th>Impacto estimado</th><th>Sobre 100,000 USD</th><th>Origen</th></tr></thead><tbody>'+
     stress.map(s=>'<tr><td>'+esc(s.n)+'</td><td class="'+(s.v<0?"neg":"pos")+'">'+fmtP(s.v)+'</td><td>$'+(s.v*notional).toLocaleString("en-US",{maximumFractionDigits:0})+'</td><td>'+(/VaR|CVaR/.test(s.n)?"Modelo de cola":/Peor|drawdown/.test(s.n)?"Dato observado":"Regresión multifactorial")+'</td></tr>').join("")+'</tbody>';
   const btl=bt?"\nBACKTESTING KUPIEC (ventana "+Wbt+", "+bt.hist.T+" pruebas fuera de muestra)\n  Historico      : "+bt.hist.N+" excepciones ("+fmtP(bt.hist.rate,2)+"), LR="+fmtN(bt.hist.LR)+", p="+fmtN(bt.hist.p,3)+"\n  Parametrico    : "+bt.param.N+" excepciones ("+fmtP(bt.param.rate,2)+"), LR="+fmtN(bt.param.LR)+", p="+fmtN(bt.param.p,3)+"\n  Cornish-Fisher : "+bt.cf.N+" excepciones ("+fmtP(bt.cf.rate,2)+"), LR="+fmtN(bt.cf.LR)+", p="+fmtN(bt.cf.p,3):"\nBACKTESTING: muestra insuficiente.";
- 
+
   const nombresMetodo={boot:"Bootstrap histórico",t:"t-Student calibrada",normal:"Normal (browniano geométrico)"};
   const horMC=Math.max(5,Math.min(252,S.mcHor));
   const mc=simularMC(main,st,S.mcMetodo,horMC,S.mcSims);
@@ -884,7 +884,7 @@ function render(){
   $("tbMCvsVaR").innerHTML='<thead><tr><th>Fuente</th><th>VaR '+cP+'%</th><th>Supuesto principal</th></tr></thead><tbody>'+
     '<tr><td>Analítico (secc. 5), escalado a '+horMC+' '+perPl+'</td><td>'+fmtP(varAnaliticoH)+'</td><td>Raíz del tiempo: rendimientos i.i.d.</td></tr>'+
     '<tr><td>Simulación Montecarlo, '+nombresMetodo[S.mcMetodo].toLowerCase()+'</td><td>'+fmtP(varSimRet)+'</td><td>'+(S.mcMetodo==="boot"?"Distribución empírica completa, pero i.i.d.":S.mcMetodo==="t"?"Colas gruesas calibradas, pero i.i.d.":"Normalidad, i.i.d.")+'</td></tr></tbody>';
- 
+
   const corrTxt=cset.filter(s=>s.key!==main.key).map(s=>"  vs "+s.name+": "+fmtN(corr(main.r,s.r),3)).join("\n");
   $("ficha").textContent=
 "FICHA DE RIESGO - "+main.name.toUpperCase()+" ("+main.tick+")\n"+
@@ -942,4 +942,4 @@ function quiz(){
 </script>
 </body>
 </html>
- 
+
