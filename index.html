@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hoja de ensaye · Riesgo cuantitativo de metales</title>
+<title>Hoja de ensaye · Riesgo cuantitativo de commodities</title>
 <style>
 :root{
   --paper:#E7EAE4; --paper-2:#F2F4EF; --ink:#14202B; --slate:#55636B; --rule:#C3CABF;
   --au:#A9812B; --ag:#8C99A3; --pt:#6E7F8D; --cu:#B5623C; --spx:#3D4F5C; --usd:#2F6B5E;
+  --oil:#824B18; --gas:#2E7FB8; --trigo:#BFA030; --maiz:#CC7A1F;
   --loss:#7A2E3B; --gain:#2F6B5E;
   --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
   --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -62,7 +63,8 @@ p{margin:0 0 12px;max-width:78ch}
 .fx small{color:var(--slate)}
 .note{border-left:3px solid var(--slate);padding:8px 12px;background:var(--paper-2);font-size:13.5px;color:var(--slate);margin:12px 0}
 .note b{color:var(--ink)}
-.warn{border-left-color:var(--loss)}
+.warn{border-left-color:var(--loss);border-left-width:4px;background:#F5E9EA;color:var(--ink)}
+.warn b{color:var(--loss)}
 table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;margin:8px 0 4px}
 th,td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:right;white-space:nowrap}
 th:first-child,td:first-child{text-align:left}
@@ -90,8 +92,8 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
 <header class="masthead">
   <div class="left">
     <p class="eyebrow">Hoja de ensaye · Riesgo de mercado</p>
-    <h1>Laboratorio cuantitativo de <em>metales</em></h1>
-    <p class="lede">Ocho pruebas para caracterizar el riesgo de un metal: de la serie de precios al VaR con backtesting. Cada paso muestra la fórmula, el cálculo sobre los datos cargados y el criterio para justificar la métrica en el proyecto.</p>
+    <h1>Laboratorio cuantitativo de <em>commodities</em></h1>
+    <p class="lede">Ocho pruebas para caracterizar el riesgo de un commodity — metal, energético o grano —: de la serie de precios al VaR con backtesting. Cada paso muestra la fórmula, el cálculo sobre los datos cargados y el criterio para justificar la métrica en el proyecto.</p>
   </div>
   <div class="punch">
     <div class="stamp"><div class="sym" id="stSym">Au</div><div class="fine" id="stFine">GC=F</div></div>
@@ -101,7 +103,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
 </header>
 <div class="controls">
   <div class="ctl"><span class="lab">Activos en el estudio</span><div class="metalpick" id="pick"></div></div>
-  <div class="ctl"><label for="main">Metal principal</label><select id="main"></select></div>
+  <div class="ctl"><label for="main">Activo principal</label><select id="main"></select></div>
   <div class="ctl"><label for="bench">Benchmark (beta)</label><select id="bench"></select></div>
   <div class="ctl"><label for="freq">Frecuencia</label><select id="freq"><option value="d">Diaria (252)</option><option value="m">Mensual (12)</option></select></div>
   <div class="ctl"><label for="rtype">Rendimiento</label><select id="rtype"><option value="log">Logarítmico</option><option value="simple">Aritmético</option></select></div>
@@ -111,7 +113,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="ctl"><span class="lab">Datos</span><div style="display:flex;gap:6px"><button class="act ghost" id="btnCsv">Cargar mi CSV</button><button class="act ghost" id="btnLive">Datos en vivo</button><button class="act ghost" id="btnDemo">Volver a demo</button></div></div>
 </div>
 <nav class="rail" id="rail" role="tablist"></nav>
-
+ 
 <section id="s1" class="on">
   <h2>1 · Datos y fuentes</h2>
   <p>Todo el análisis se sostiene en la serie de precios. Antes de calcular nada hay que fijar cuatro cosas: <b>qué precio</b> (spot LBMA, futuro continuo, ETF), <b>en qué moneda</b>, <b>con qué frecuencia</b> y <b>en qué ventana</b>. Cambiar cualquiera de ellas cambia todos los números que siguen.</p>
@@ -125,14 +127,14 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
     <thead><tr><th>Fuente</th><th>Serie</th><th>Frecuencia</th><th>Nota</th></tr></thead>
     <tbody>
       <tr><td>LBMA (lbma.org.uk)</td><td>Oro y plata, precio de fixing AM/PM</td><td>Diaria</td><td>Referencia oficial del mercado físico</td></tr>
-      <tr><td>Yahoo Finance</td><td>GC=F, SI=F, PL=F, HG=F, ^GSPC, DX-Y.NYB</td><td>Diaria / mensual</td><td>Descarga CSV directa; futuro continuo</td></tr>
+      <tr><td>Yahoo Finance</td><td>GC=F, SI=F, PL=F, HG=F, CL=F, NG=F, ZW=F, ZC=F, ^GSPC, DX-Y.NYB</td><td>Diaria / mensual</td><td>Descarga CSV directa; futuro continuo</td></tr>
       <tr><td>FRED (St. Louis Fed)</td><td>DTWEXBGS, DGS10, T10YIE</td><td>Diaria / mensual</td><td>Útil para tasa real y dólar</td></tr>
       <tr><td>World Bank Pink Sheet</td><td>Precios mensuales de commodities</td><td>Mensual</td><td>Series largas y homogéneas</td></tr>
-      <tr><td>CME Group</td><td>Settlement de GC, SI, HG, PL</td><td>Diaria</td><td>Precio de liquidación oficial</td></tr>
+      <tr><td>CME Group</td><td>Settlement de GC, SI, HG, PL, CL, NG, ZW, ZC</td><td>Diaria</td><td>Precio de liquidación oficial</td></tr>
     </tbody></table></div>
   <div class="note warn"><b>Regla del proyecto:</b> documenten fuente, ticker, ventana exacta (dd/mm/aaaa) y tratamiento de datos faltantes. Un análisis sin trazabilidad de datos no es replicable y no se califica.</div>
 </section>
-
+ 
 <section id="s2">
   <h2>2 · Rendimiento histórico</h2>
   <p>El precio no es comparable entre metales: el oro cotiza en cientos de dólares y el cobre en unidades. El rendimiento sí lo es, porque es adimensional. Esa es la razón por la que todo el análisis de riesgo se hace sobre rendimientos y no sobre precios.</p>
@@ -145,7 +147,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbRet"></table></div>
   <div class="note"><b>Cómo justificarlo:</b> el CAGR responde "¿cuánto habría ganado quien compró y mantuvo?" y la media aritmética anualizada responde "¿cuánto espero ganar el próximo periodo?". El CAGR siempre es menor cuando hay volatilidad; esa brecha es el <i>lastre de volatilidad</i> y ya es, por sí misma, una medida de riesgo.</div>
 </section>
-
+ 
 <section id="s3">
   <h2>3 · Volatilidad</h2>
   <p>La volatilidad es la desviación estándar de los rendimientos. Se calcula en la frecuencia de los datos y se anualiza con la raíz del número de periodos, un escalamiento que supone rendimientos independientes.</p>
@@ -159,7 +161,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbVol"></table></div>
   <div class="note"><b>Lectura esperada:</b> la plata suele duplicar la volatilidad del oro. Ese contraste es el argumento central de por qué el oro se usa como activo defensivo y la plata no, pese a que ambos son metales preciosos.</div>
 </section>
-
+ 
 <section id="s4">
   <h2>4 · Máximos, mínimos y drawdown</h2>
   <p>La volatilidad castiga igual las subidas que las bajadas. El drawdown mide sólo lo que le duele al inversionista: la caída desde el máximo histórico previo hasta el valle, y cuánto tiempo tomó recuperarla.</p>
@@ -173,7 +175,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbDD"></table></div>
   <div class="note"><b>Cómo justificarlo:</b> el máximo drawdown es la métrica más intuitiva para un comité de inversión porque se expresa en la moneda del dolor real. Reporten siempre las tres cifras juntas: profundidad, duración de la caída y tiempo de recuperación. Un −20% que se recupera en dos meses no es el mismo riesgo que un −20% que tarda cuatro años.</div>
 </section>
-
+ 
 <section id="s5">
   <h2>5 · Valor en Riesgo (VaR) y CVaR</h2>
   <p>El VaR responde una sola pregunta: <b>¿cuál es la pérdida que no se excederá con probabilidad c en el horizonte h?</b> No es la pérdida máxima. El CVaR (Expected Shortfall) sí mira dentro de la cola: es el promedio de las pérdidas que sí superan el VaR.</p>
@@ -190,7 +192,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="chBT"></div>
   <div class="legend"><span><i style="background:var(--slate)"></i>Rendimiento</span><span><i style="background:var(--ink)"></i>−VaR estimado</span><span><i style="background:var(--loss)"></i>Excepción</span></div>
 </section>
-
+ 
 <section id="s6">
   <h2>6 · Distribución de rendimientos</h2>
   <p>Casi todo el modelo financiero estándar supone normalidad. Los metales rara vez la cumplen: tienen colas gruesas y, con frecuencia, asimetría. Verificarlo no es un trámite: determina si el VaR paramétrico del paso anterior es utilizable.</p>
@@ -200,7 +202,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="jbBox"></div>
   <div class="note"><b>Cómo leer el Q-Q:</b> si los puntos se separan de la recta hacia abajo en el extremo izquierdo, las pérdidas extremas son más frecuentes de lo que predice la normal. Esa curvatura es la justificación gráfica de por qué el VaR normal se queda corto.</div>
 </section>
-
+ 
 <section id="s7">
   <h2>7 · Correlación y beta</h2>
   <p>El riesgo de un metal dentro de un portafolio no depende sólo de su volatilidad, sino de cómo se mueve respecto a lo demás. Dos activos volátiles pero poco correlacionados pueden formar una cartera más estable que uno solo de volatilidad media.</p>
@@ -216,7 +218,7 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div id="chBeta"></div>
   <div class="note warn"><b>Cuidado con la beta:</b> tiene sentido cuando el benchmark explica una parte razonable de la varianza. Si la R² es muy baja —típico en el oro contra un índice accionario— la beta es un número casi vacío y hay que decirlo. Ahí conviene sustituirla por regresión contra factores propios del metal: dólar, tasa real, inventarios.</div>
 </section>
-
+ 
 <section id="s8">
   <h2>8 · Sensibilidad y escenarios de estrés</h2>
   <p>Las métricas anteriores describen el pasado. La sensibilidad traduce ese pasado en una respuesta condicional: si el factor se mueve X, ¿cuánto se mueve el metal? Se estima con una regresión multifactorial.</p>
@@ -228,9 +230,40 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
   <div class="wrapT"><table id="tbStress"></table></div>
   <div class="note"><b>Cierre del análisis:</b> junten las tres capas —métrica histórica, métrica de cola (VaR/CVaR) y escenario condicional— en una sola conclusión por metal. El proyecto no pide una tabla de estadísticos: pide una recomendación defendible sobre cuál metal ofrece mejor relación rendimiento-riesgo y por qué.</div>
 </section>
-
+ 
 <section id="s9">
-  <h2>9 · Ficha de resultados y autoevaluación</h2>
+  <h2>9 · Simulación Montecarlo</h2>
+  <p>Las secciones anteriores describen lo que ya pasó. Esta proyecta hacia adelante: miles de trayectorias posibles del precio, construidas con las mismas propiedades estadísticas que se midieron en los pasos 2 a 6, para ver un rango de dónde podría moverse el activo.</p>
+  <div class="controls" style="border:1px solid var(--rule);margin:0 0 16px">
+    <div class="ctl"><label for="mcMetodo">Método de remuestreo</label>
+      <select id="mcMetodo">
+        <option value="boot">Bootstrap histórico</option>
+        <option value="t">t-Student calibrada a la muestra</option>
+        <option value="normal">Normal (browniano geométrico)</option>
+      </select>
+    </div>
+    <div class="ctl"><label for="mcHor">Horizonte (periodos)</label><input type="number" id="mcHor" min="5" max="252" value="60" style="width:80px"></div>
+    <div class="ctl"><label for="mcSims">Trayectorias</label>
+      <select id="mcSims"><option value="500">500</option><option value="1500" selected>1,500</option><option value="3000">3,000</option><option value="5000">5,000</option></select>
+    </div>
+    <div class="ctl"><span class="lab">&nbsp;</span><button class="act" id="mcRerun">Repetir simulación</button></div>
+  </div>
+  <span class="fx" id="fxMC"></span>
+  <div class="grid g3" id="kpiMC"></div>
+  <h3>Abanico de trayectorias · <span id="mainName9"></span></h3>
+  <div id="chMCFan"></div>
+  <div class="legend"><span><i style="background:var(--au)"></i>Mediana</span><span><i style="background:var(--slate)"></i>Bandas 50% y 90%</span><span><i style="background:var(--ink)"></i>Precio actual</span></div>
+  <h3>Distribución del precio al final del horizonte</h3>
+  <div id="chMCHist"></div>
+  <h3>Percentiles proyectados</h3>
+  <div class="wrapT"><table id="tbMC"></table></div>
+  <h3>VaR de la simulación contra el VaR analítico</h3>
+  <div class="wrapT"><table id="tbMCvsVaR"></table></div>
+  <div class="note warn"><b>Qué NO capturan estos métodos:</b> tanto el bootstrap como las versiones normal y t-Student asumen rendimientos independientes entre periodos (i.i.d.). Ninguno reproduce el agrupamiento de volatilidad (una racha volátil no aumenta la probabilidad de que el siguiente periodo también lo sea, como sí ocurre con GARCH/EWMA) ni tendencias o reversión a la media. El bootstrap sí conserva la forma exacta de la distribución histórica —su asimetría y sus colas—, que es su ventaja sobre asumir normalidad.</div>
+</section>
+ 
+<section id="s10">
+  <h2>10 · Ficha de resultados y autoevaluación</h2>
   <h3>Resumen listo para el reporte</h3>
   <p>Los valores corresponden a la configuración actual del panel. Cópienlo, verifiquen cada cifra contra <code>analisis_metales.py</code> y redacten la interpretación con sus palabras.</p>
   <button class="act" id="btnCopy">Copiar ficha</button>
@@ -241,17 +274,18 @@ footer{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:12px;font-f
     <thead><tr><th>Criterio</th><th>Evidencia mínima</th></tr></thead>
     <tbody>
       <tr><td>Fuente y ventana</td><td>Ticker, proveedor, fechas exactas, número de observaciones</td></tr>
-      <tr><td>Justificación de métricas</td><td>Por qué esa métrica y no otra, para este metal y este horizonte</td></tr>
+      <tr><td>Justificación de métricas</td><td>Por qué esa métrica y no otra, para este activo y este horizonte</td></tr>
       <tr><td>Supuestos declarados</td><td>Frecuencia, tipo de rendimiento, anualización, tasa libre de riesgo</td></tr>
       <tr><td>Prueba de normalidad</td><td>Asimetría, curtosis, Jarque-Bera y su consecuencia sobre el VaR</td></tr>
       <tr><td>VaR con validación</td><td>Tres métodos comparados y backtesting con conteo de excepciones</td></tr>
       <tr><td>Riesgo relativo</td><td>Matriz de correlación y correlación móvil, no sólo el promedio</td></tr>
-      <tr><td>Conclusión accionable</td><td>Ranking de metales con criterio explícito de decisión</td></tr>
+      <tr><td>Conclusión accionable</td><td>Ranking de activos con criterio explícito de decisión</td></tr>
+      <tr><td>Simulación Montecarlo</td><td>Rango proyectado con supuestos explícitos, comparado contra el VaR analítico</td></tr>
     </tbody></table></div>
   <h3>Autoevaluación rápida</h3>
   <div id="quiz"></div>
 </section>
-<footer>Hoja de ensaye · laboratorio de riesgo de metales — material didáctico. La serie DEMO es sintética y calibrada; el entregable exige series reales.</footer>
+<footer>Hoja de ensaye · laboratorio de riesgo de commodities — material didáctico. La serie DEMO es sintética y calibrada; el entregable exige series reales.</footer>
 </div>
 <script>
 "use strict";
@@ -296,12 +330,16 @@ function ols(y,X){
 const fmtP=(x,d=2)=>(x*100).toFixed(d)+"%";
 const fmtN=(x,d=2)=>x.toFixed(d);
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-
+ 
 const META={
   Oro:{sym:"Au",tick:"GC=F",col:"var(--au)"},
   Plata:{sym:"Ag",tick:"SI=F",col:"var(--ag)"},
   Platino:{sym:"Pt",tick:"PL=F",col:"var(--pt)"},
   Cobre:{sym:"Cu",tick:"HG=F",col:"var(--cu)"},
+  Petroleo:{sym:"WTI",tick:"CL=F",col:"var(--oil)"},
+  GasNatural:{sym:"NG",tick:"NG=F",col:"var(--gas)"},
+  Trigo:{sym:"WHT",tick:"ZW=F",col:"var(--trigo)"},
+  Maiz:{sym:"CRN",tick:"ZC=F",col:"var(--maiz)"},
   SP500:{sym:"SPX",tick:"^GSPC",col:"var(--spx)"},
   Dolar:{sym:"USD",tick:"DX-Y.NYB",col:"var(--usd)"}
 };
@@ -331,8 +369,8 @@ async function cargarVivo(){
   }catch(e){return null;}
 }
 let DATA=cargarDemo();
-const S={sel:["Oro","Plata","Platino","Cobre"],main:"Oro",bench:"SP500",freq:"d",rtype:"log",conf:0.99,hor:1,rf:0.0425,tab:"s1"};
-
+const S={sel:["Oro","Plata","Platino","Cobre"],main:"Oro",bench:"SP500",freq:"d",rtype:"log",conf:0.99,hor:1,rf:0.0425,tab:"s1",mcMetodo:"boot",mcHor:60,mcSims:1500};
+ 
 function view(){
   let dates=DATA.dates, series=DATA.series.map(s=>Object.assign({},s));
   if(S.freq==="m"){
@@ -520,8 +558,77 @@ function chartHBars(el,items){
     g+='<text x="'+(x0+w+8).toFixed(1)+'" y="'+(y+15)+'" font-family="monospace" font-size="11.5" fill="#14202B">'+fmtP(it.v,2)+'</text>';});
   el.innerHTML='<svg viewBox="0 0 '+W+' '+h+'" role="img">'+g+'</svg>';
 }
+function randnJS(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function randChi2Aprox(df){ // Wilson-Hilferty: barato y suficiente para fines didacticos
+  const z=randnJS(),val=df*Math.pow(1-2/(9*df)+z*Math.sqrt(2/(9*df)),3);
+  return Math.max(val,1e-6);
+}
+function randT(df){const z=randnJS(),w=randChi2Aprox(df);return z/Math.sqrt(w/df);}
+ 
+function simularMC(main,st,metodo,horizonte,nsims){
+  const m=st.m,sd=st.sd,S0=main.px[main.px.length-1],r=main.r;
+  const exkurt=Math.max(0,st.ku-3);
+  const df=exkurt>0.5?Math.max(4.5,6/exkurt+4):30;
+  const matriz=new Array(nsims),terminal=new Array(nsims);
+  for(let s=0;s<nsims;s++){
+    let acc=0;const fila=new Array(horizonte);
+    for(let t=0;t<horizonte;t++){
+      let choque;
+      if(metodo==="boot")choque=r[Math.floor(Math.random()*r.length)];
+      else if(metodo==="t")choque=m+sd*randT(df);
+      else choque=m+sd*randnJS();
+      acc+=choque;fila[t]=acc;
+    }
+    matriz[s]=fila;terminal[s]=S0*Math.exp(acc);
+  }
+  const banda={p05:[],p25:[],p50:[],p75:[],p95:[]};
+  for(let t=0;t<horizonte;t++){
+    const col=matriz.map(f=>f[t]).sort((a,b)=>a-b);
+    banda.p05.push(S0*Math.exp(pct(col,0.05)));
+    banda.p25.push(S0*Math.exp(pct(col,0.25)));
+    banda.p50.push(S0*Math.exp(pct(col,0.50)));
+    banda.p75.push(S0*Math.exp(pct(col,0.75)));
+    banda.p95.push(S0*Math.exp(pct(col,0.95)));
+  }
+  terminal.sort((a,b)=>a-b);
+  return {S0,banda,terminal,df,metodo,horizonte,nsims};
+}
+ 
+function chartFan(el,S0,banda){
+  const n=banda.p50.length,xd=[0,n-1];
+  const yd=ext([banda.p05,banda.p95,[S0]]);
+  let g=axes(xd,yd,v=>v.toFixed(0),4,xlab(banda.p50.map((_,i)=>"+"+i),5));
+  const area=(sup,inf)=>{
+    let d="";
+    sup.forEach((v,i)=>{d+=(i?"L":"M")+px_(i,xd,M.l,W-M.r).toFixed(1)+","+px_(v,yd,H-M.b,M.t).toFixed(1)+" ";});
+    for(let i=inf.length-1;i>=0;i--)d+="L"+px_(i,xd,M.l,W-M.r).toFixed(1)+","+px_(inf[i],yd,H-M.b,M.t).toFixed(1)+" ";
+    return d+"Z";
+  };
+  g+='<path d="'+area(banda.p95,banda.p05)+'" fill="var(--slate)" opacity=".18"/>';
+  g+='<path d="'+area(banda.p75,banda.p25)+'" fill="var(--slate)" opacity=".30"/>';
+  const y0=px_(S0,yd,H-M.b,M.t);
+  g+='<line x1="'+M.l+'" y1="'+y0.toFixed(1)+'" x2="'+(W-M.r)+'" y2="'+y0.toFixed(1)+'" stroke="#14202B" stroke-width="1.3" stroke-dasharray="4 3"/>';
+  g+=line(banda.p50,xd,yd,"var(--au)",2.2,false);
+  el.innerHTML=svgWrap(g);
+}
+function chartHistPrice(el,terminal,S0,varSim,bins){
+  bins=bins||40;
+  const lo=Math.min.apply(null,terminal),hi=Math.max.apply(null,terminal),w=(hi-lo)/bins,cnt=new Array(bins).fill(0);
+  terminal.forEach(function(x){let b=Math.floor((x-lo)/w);if(b>=bins)b=bins-1;if(b<0)b=0;cnt[b]++;});
+  const yd=[0,Math.max.apply(null,cnt)*1.08],xd=[lo,hi];
+  let g=axes(xd,yd,v=>v.toFixed(0),4,[]);
+  cnt.forEach(function(c,i){
+    const x0=px_(lo+w*i,xd,M.l,W-M.r),x1=px_(lo+w*(i+1),xd,M.l,W-M.r),y=px_(c,yd,H-M.b,M.t);
+    const cola=lo+w*(i+1)<=S0-varSim;
+    g+='<rect x="'+x0.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(0.6,x1-x0-0.6).toFixed(1)+'" height="'+(H-M.b-y).toFixed(1)+'" fill="'+(cola?"var(--loss)":"var(--slate)")+'" opacity="'+(cola?.85:.42)+'"/>';});
+  const xS0=px_(S0,xd,M.l,W-M.r);
+  g+='<line x1="'+xS0.toFixed(1)+'" y1="'+M.t+'" x2="'+xS0.toFixed(1)+'" y2="'+(H-M.b)+'" stroke="#14202B" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  g+='<text x="'+(xS0+5).toFixed(1)+'" y="'+(M.t+12)+'" font-family="monospace" font-size="10" fill="#14202B">Precio actual</text>';
+  [lo,(lo+hi)/2,hi].forEach(function(v){g+='<text x="'+px_(v,xd,M.l,W-M.r).toFixed(1)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-family="monospace" font-size="10" fill="#55636B">'+v.toFixed(0)+'</text>';});
+  el.innerHTML=svgWrap(g);
+}
 const $=id=>document.getElementById(id);
-const STEPS=[["s1","01","Datos"],["s2","02","Rendimiento"],["s3","03","Volatilidad"],["s4","04","Drawdown"],["s5","05","VaR / CVaR"],["s6","06","Distribución"],["s7","07","Correlación y beta"],["s8","08","Sensibilidad"],["s9","09","Ficha"]];
+const STEPS=[["s1","01","Datos"],["s2","02","Rendimiento"],["s3","03","Volatilidad"],["s4","04","Drawdown"],["s5","05","VaR / CVaR"],["s6","06","Distribución"],["s7","07","Correlación y beta"],["s8","08","Sensibilidad"],["s9","09","Montecarlo"],["s10","10","Ficha"]];
 function initUI(){
   $("rail").innerHTML=STEPS.map(s=>'<button class="chip" role="tab" data-t="'+s[0]+'" aria-selected="'+(s[0]===S.tab)+'">'+s[1]+'<b>'+s[2]+'</b></button>').join("");
   Array.prototype.forEach.call($("rail").querySelectorAll(".chip"),function(c){
@@ -545,11 +652,15 @@ function fillSelects(){
 function wire(){
   $("main").onchange=e=>{S.main=e.target.value;render();};
   $("bench").onchange=e=>{S.bench=e.target.value;render();};
-  $("freq").onchange=e=>{S.freq=e.target.value;render();};
+  $("freq").onchange=e=>{S.freq=e.target.value;S.mcHor=S.freq==="d"?60:12;$("mcHor").value=S.mcHor;render();};
   $("rtype").onchange=e=>{S.rtype=e.target.value;render();};
   $("conf").oninput=e=>{S.conf=+e.target.value/100;$("confL").textContent=(+e.target.value).toFixed(1)+"%";render();};
   $("hor").onchange=e=>{S.hor=Math.max(1,+e.target.value||1);render();};
   $("rf").onchange=e=>{S.rf=(+e.target.value||0)/100;render();};
+  $("mcMetodo").onchange=e=>{S.mcMetodo=e.target.value;render();};
+  $("mcHor").onchange=e=>{S.mcHor=Math.max(5,Math.min(252,+e.target.value||60));render();};
+  $("mcSims").onchange=e=>{S.mcSims=+e.target.value;render();};
+  $("mcRerun").onclick=()=>render();
   $("btnDemo").onclick=function(){DATA=cargarDemo();S.sel=["Oro","Plata","Platino","Cobre"];S.main="Oro";S.bench="SP500";initUI();render();};
   $("btnLive").onclick=async function(){
     $("btnLive").textContent="Buscando…";
@@ -611,7 +722,7 @@ function render(){
   $("stFine").textContent=(main.tick||"").toUpperCase().slice(0,9);
   $("stVol").textContent=fmtP(st.volA,1);
   $("stVar").textContent=fmtP(vs.hist,2);
-  ["mainName2","mainName4","mainName7"].forEach(function(id){if($(id))$(id).textContent=main.name;});
+  ["mainName2","mainName4","mainName7","mainName9"].forEach(function(id){if($(id))$(id).textContent=main.name;});
   if(!$("csvTxt")){
     $("dataStatus").innerHTML= DATA.demo
       ? '<div class="note warn"><b>Serie DEMO sintética.</b> Modelo de factores con colas pesadas y agrupamiento de volatilidad, semilla fija: todos los equipos ven exactamente los mismos datos y coinciden con <code>datos_demo.csv</code>. Sirve para aprender el método, <b>no</b> para el entregable. Usen “Datos en vivo” si esta página está publicada, o “Cargar mi CSV” con series propias.</div>'
@@ -746,6 +857,34 @@ function render(){
   $("tbStress").innerHTML='<thead><tr><th>Escenario</th><th>Impacto estimado</th><th>Sobre 100,000 USD</th><th>Origen</th></tr></thead><tbody>'+
     stress.map(s=>'<tr><td>'+esc(s.n)+'</td><td class="'+(s.v<0?"neg":"pos")+'">'+fmtP(s.v)+'</td><td>$'+(s.v*notional).toLocaleString("en-US",{maximumFractionDigits:0})+'</td><td>'+(/VaR|CVaR/.test(s.n)?"Modelo de cola":/Peor|drawdown/.test(s.n)?"Dato observado":"Regresión multifactorial")+'</td></tr>').join("")+'</tbody>';
   const btl=bt?"\nBACKTESTING KUPIEC (ventana "+Wbt+", "+bt.hist.T+" pruebas fuera de muestra)\n  Historico      : "+bt.hist.N+" excepciones ("+fmtP(bt.hist.rate,2)+"), LR="+fmtN(bt.hist.LR)+", p="+fmtN(bt.hist.p,3)+"\n  Parametrico    : "+bt.param.N+" excepciones ("+fmtP(bt.param.rate,2)+"), LR="+fmtN(bt.param.LR)+", p="+fmtN(bt.param.p,3)+"\n  Cornish-Fisher : "+bt.cf.N+" excepciones ("+fmtP(bt.cf.rate,2)+"), LR="+fmtN(bt.cf.LR)+", p="+fmtN(bt.cf.p,3):"\nBACKTESTING: muestra insuficiente.";
+ 
+  const nombresMetodo={boot:"Bootstrap histórico",t:"t-Student calibrada",normal:"Normal (browniano geométrico)"};
+  const horMC=Math.max(5,Math.min(252,S.mcHor));
+  const mc=simularMC(main,st,S.mcMetodo,horMC,S.mcSims);
+  const retTerm=mc.terminal.map(p=>Math.log(p/mc.S0));
+  const varSimRet=-pct(retTerm,1-S.conf);
+  const varSimPx=mc.S0*(1-Math.exp(-varSimRet));
+  const varAnaliticoH=vs.hist*Math.sqrt(horMC/S.hor);
+  const probBaja=mc.terminal.filter(p=>p<mc.S0).length/mc.terminal.length;
+  $("fxMC").innerHTML='P(t) = P(0) · exp( Σ r_i ),  i = 1..'+horMC+'   ·   método: '+nombresMetodo[S.mcMetodo]+
+    (S.mcMetodo==="t"?'  (g.l. ≈ '+fmtN(mc.df,1)+')':'');
+  $("kpiMC").innerHTML=kpi([
+    ["Precio actual",mc.S0.toFixed(2),main.tick+" · último dato de la muestra"],
+    ["Mediana proyectada",fmtP(mc.banda.p50[mc.banda.p50.length-1]/mc.S0-1),"Precio: "+mc.banda.p50[mc.banda.p50.length-1].toFixed(2)+" a "+horMC+" "+perPl],
+    ["Rango 90%",mc.banda.p05[mc.banda.p05.length-1].toFixed(2)+" — "+mc.banda.p95[mc.banda.p95.length-1].toFixed(2),"Percentiles 5 y 95 al final del horizonte"],
+    ["Prob. de terminar por debajo",fmtP(probBaja,1),"De las "+mc.nsims.toLocaleString("es-MX")+" trayectorias simuladas"],
+    ["VaR simulado ("+cP+"%)",fmtP(varSimRet),"Percentil "+fmtP(1-S.conf,1)+" del rendimiento acumulado simulado"],
+    ["VaR analítico escalado",fmtP(varAnaliticoH),"VaR histórico × √("+horMC+"/"+S.hor+"): supone independencia perfecta"]]);
+  chartFan($("chMCFan"),mc.S0,mc.banda);
+  chartHistPrice($("chMCHist"),mc.terminal,mc.S0,varSimPx);
+  const filasMC=[[5,"p05"],[10,null],[25,"p25"],[50,"p50"],[75,"p75"],[90,null],[95,"p95"]];
+  $("tbMC").innerHTML='<thead><tr><th>Percentil</th><th>Precio proyectado</th><th>Variación vs. hoy</th></tr></thead><tbody>'+
+    [5,10,25,50,75,90,95].map(function(p){const v=pct(mc.terminal,p/100);
+      return '<tr><td>P'+p+'</td><td>'+v.toFixed(2)+'</td><td class="'+(v<mc.S0?"neg":"pos")+'">'+fmtP(v/mc.S0-1)+'</td></tr>';}).join("")+'</tbody>';
+  $("tbMCvsVaR").innerHTML='<thead><tr><th>Fuente</th><th>VaR '+cP+'%</th><th>Supuesto principal</th></tr></thead><tbody>'+
+    '<tr><td>Analítico (secc. 5), escalado a '+horMC+' '+perPl+'</td><td>'+fmtP(varAnaliticoH)+'</td><td>Raíz del tiempo: rendimientos i.i.d.</td></tr>'+
+    '<tr><td>Simulación Montecarlo, '+nombresMetodo[S.mcMetodo].toLowerCase()+'</td><td>'+fmtP(varSimRet)+'</td><td>'+(S.mcMetodo==="boot"?"Distribución empírica completa, pero i.i.d.":S.mcMetodo==="t"?"Colas gruesas calibradas, pero i.i.d.":"Normalidad, i.i.d.")+'</td></tr></tbody>';
+ 
   const corrTxt=cset.filter(s=>s.key!==main.key).map(s=>"  vs "+s.name+": "+fmtN(corr(main.r,s.r),3)).join("\n");
   $("ficha").textContent=
 "FICHA DE RIESGO - "+main.name.toUpperCase()+" ("+main.tick+")\n"+
@@ -757,7 +896,13 @@ function render(){
 "DRAWDOWN\n  Maximo drawdown     : "+fmtP(dd.mdd)+" ("+V.dates[dd.peakIdx]+" -> "+V.dates[dd.troughIdx]+")\n  Duracion / recup.   : "+dur+" "+perPl+" / "+(rec===null?"sin recuperar":rec+" "+perPl)+"\n  Calmar              : "+fmtN(st.cagr/Math.abs(dd.mdd))+"\n\n"+
 "VaR Y CVaR (confianza "+cP+"%, horizonte "+S.hor+" "+perPl+")\n  Historico           : "+fmtP(vs.hist)+"\n  Parametrico         : "+fmtP(vs.param)+"\n  Cornish-Fisher      : "+fmtP(vs.cf)+"\n  CVaR                : "+fmtP(vs.cvar)+"\n  Sobre 100,000 USD   : "+(vs.hist*notional).toFixed(0)+" USD"+btl+"\n\n"+
 "DISTRIBUCION\n  Asimetria           : "+fmtN(st.sk,3)+"\n  Curtosis            : "+fmtN(st.ku)+" (exceso "+fmtN(exK)+")\n  Jarque-Bera         : "+fmtN(st.jb,1)+" -> "+(st.jb>5.991?"se rechaza normalidad":"no se rechaza normalidad")+"\n\n"+
-"CORRELACION (rendimientos)\n"+corrTxt+"\n\nESCENARIOS\n"+stress.map(s=>"  "+s.n+": "+fmtP(s.v)).join("\n");
+"CORRELACION (rendimientos)\n"+corrTxt+"\n\nESCENARIOS\n"+stress.map(s=>"  "+s.n+": "+fmtP(s.v)).join("\n")+"\n\n"+
+"SIMULACION MONTECARLO ("+nombresMetodo[S.mcMetodo]+", "+mc.nsims+" trayectorias, "+horMC+" "+perPl+")\n"+
+"  Precio actual         : "+mc.S0.toFixed(2)+"\n"+
+"  Mediana proyectada    : "+mc.banda.p50[mc.banda.p50.length-1].toFixed(2)+" ("+fmtP(mc.banda.p50[mc.banda.p50.length-1]/mc.S0-1)+")\n"+
+"  Rango 90% (P5-P95)    : "+mc.banda.p05[mc.banda.p05.length-1].toFixed(2)+" a "+mc.banda.p95[mc.banda.p95.length-1].toFixed(2)+"\n"+
+"  Prob. de terminar bajo el precio actual: "+fmtP(probBaja,1)+"\n"+
+"  VaR simulado vs analitico escalado ("+cP+"%): "+fmtP(varSimRet)+" vs "+fmtP(varAnaliticoH);
 }
 const QZ=[
  {q:"El VaR al 99% diario del oro es 2.3%. ¿Qué significa exactamente?",
@@ -771,7 +916,10 @@ const QZ=[
   e:"Con una R² tan baja, la beta describe muy poco del comportamiento del activo. Lo correcto es reportarla con esa advertencia y complementarla con factores propios del metal, como el dólar o la tasa real."},
  {q:"Dos metales tienen la misma volatilidad anual, pero uno tiene un drawdown máximo mucho mayor. ¿Por qué ocurre?",
   o:["Por un error de cálculo: deben coincidir","Porque la volatilidad no distingue la secuencia ni el signo de los movimientos","Porque uno cotiza en otra moneda","Porque el drawdown se mide sobre rendimientos"],a:1,
-  e:"La desviación estándar es simétrica y no depende del orden de los datos. El drawdown sí: depende de que las caídas se encadenen. Por eso ambas métricas se reportan juntas."}
+  e:"La desviación estándar es simétrica y no depende del orden de los datos. El drawdown sí: depende de que las caídas se encadenen. Por eso ambas métricas se reportan juntas."},
+ {q:"La simulación Montecarlo por bootstrap remuestrea rendimientos históricos al azar, con reemplazo. ¿Qué NO puede reproducir por construcción?",
+  o:["La forma real de la distribución, con sus colas gruesas","El agrupamiento de volatilidad: que un periodo turbulento aumente la probabilidad de que el siguiente también lo sea","El rango de precios posibles a varios periodos","La asimetría observada en los rendimientos"],a:1,
+  e:"Cada sorteo es independiente de los anteriores (i.i.d.), así que el remuestreo no encadena rachas de volatilidad como sí lo hace un modelo GARCH o el EWMA de la sección 3. Sí conserva la forma exacta de la distribución histórica, que es su ventaja frente a asumir normalidad."}
 ];
 function quiz(){
   $("quiz").innerHTML=QZ.map((q,i)=>'<div class="q"><p>'+(i+1)+'. '+esc(q.q)+'</p>'+q.o.map((o,j)=>'<button data-q="'+i+'" data-o="'+j+'">'+esc(o)+'</button>').join("")+'<div class="fb" id="fb'+i+'"></div></div>').join("");
@@ -794,3 +942,4 @@ function quiz(){
 </script>
 </body>
 </html>
+ 
